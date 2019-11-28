@@ -43,7 +43,7 @@
         android:backgroundTint="@color/secondaryColor"
         android:backgroundTintMode="src_atop"
         android:src="@mipmap/baseline_add_24"
-        android:tint="#FFFFFF"
+        app:tint="@color/primaryTextColor"
         app:fabSize="auto" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

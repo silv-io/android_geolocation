@@ -208,7 +208,7 @@
         android:backgroundTint="@color/secondaryColor"
         android:backgroundTintMode="src_atop"
         android:src="@mipmap/baseline_delete_forever_white_24"
-        android:tint="#FFFFFF"
+        app:tint="@color/primaryTextColor"
         app:fabSize="auto"
         app:layout_anchor="@+id/item_detail_container"
         app:layout_anchorGravity="top|end" />

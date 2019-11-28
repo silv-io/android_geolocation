@@ -22,19 +22,26 @@ class LocationList : Fragment() {
 
     private lateinit var viewModel: LocationListViewModel
 
+    @Volatile private var numChecked: Int = 0
+    private lateinit var fab: FloatingActionButton
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val v:View = inflater.inflate(R.layout.fragment_location_list, container, false)
-        val fab: FloatingActionButton = v.findViewById(R.id.fab)
-        val item_list: RecyclerView = v.findViewById(R.id.item_list)
+        fab = v.findViewById(R.id.fab)
+        val itemList: RecyclerView = v.findViewById(R.id.item_list)
 
         fab.setOnClickListener { view ->
-            view.findNavController().navigate(R.id.action_locationList_to_locationDetails)
+            if (numChecked == 0) {
+                view.findNavController().navigate(R.id.action_locationList_to_locationDetails)
+            } else {
+                Snackbar.make(v, "Delete action", Snackbar.LENGTH_LONG).show()
+            }
         }
 
-        setupRecyclerView(item_list, v)
+        setupRecyclerView(itemList, v)
 
         return v
     }
@@ -53,21 +60,38 @@ class LocationList : Fragment() {
             )
     }
 
-    class SimpleItemRecyclerViewAdapter(
+    inner class SimpleItemRecyclerViewAdapter(
         private val fragmentView: View,
         private val values: List<DummyContent.DummyItem>
-    ) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+    ) : RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
-        private val onClickListener: View.OnClickListener = View.OnClickListener {
-            fragmentView.findNavController().navigate(R.id.action_locationList_to_locationDetails)
+        private val onClickListener: View.OnClickListener = View.OnClickListener {v ->
+            if (numChecked > 0) {
+                toggleCard(v as MaterialCardView)
+            } else {
+                fragmentView.findNavController()
+                    .navigate(R.id.action_locationList_to_locationDetails)
+            }
         }
 
         private val onLongClickListener: View.OnLongClickListener = View.OnLongClickListener { v ->
-            v as MaterialCardView
-            Snackbar.make(v, "Long Press: Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            toggleCard(v as MaterialCardView)
             true
+        }
+
+        private fun toggleCard(v: MaterialCardView) {
+            v.toggle()
+            if (v.isChecked) {
+                numChecked++
+            } else {
+                numChecked--
+            }
+
+            if (numChecked > 0) {
+                fab.setImageDrawable(resources.getDrawable(R.mipmap.baseline_delete_forever_white_24, context?.theme))
+            } else {
+                fab.setImageDrawable(resources.getDrawable(R.mipmap.baseline_add_white_24, context?.theme))
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

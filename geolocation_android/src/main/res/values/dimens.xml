@@ -6,4 +6,15 @@
     <dimen name="item_content_padding">14dp</dimen>
     <dimen name="item_seperator_margin">4dp</dimen>
     <dimen name="list_bottom_margin">24dp</dimen>
+    <dimen name="card_corner_radius">4dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+
+    <!-- Margin between the checked icon and the card -->
+    <dimen xmlns:tools="http://schemas.android.com/tools"
+        tools:override="true"
+        name="mtrl_card_checked_icon_margin">8dp</dimen>
+    <!-- Size of the icon to be placed when the card is checked -->
+    <dimen xmlns:tools="http://schemas.android.com/tools"
+        tools:override="true"
+        name="mtrl_card_checked_icon_size">46dp</dimen>
 </resources>
