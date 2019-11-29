@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MNS_UI_Prototype_1.iml" filepath="$PROJECT_DIR$/MNS_UI_Prototype_1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android_geolocation-MNS_UI_Prototype_1.iml" filepath="$PROJECT_DIR$/android_geolocation-MNS_UI_Prototype_1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/geolocation_android/android_geolocation-geolocation_android.iml" filepath="$PROJECT_DIR$/geolocation_android/android_geolocation-geolocation_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/geolocation_android/geolocation_android.iml" filepath="$PROJECT_DIR$/geolocation_android/geolocation_android.iml" />
     </modules>
   </component>
