@@ -1,5 +1,7 @@
 package at.tuwien.geolocation_android
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
+import at.tuwien.geolocation_android.services.LocationRequestService
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tuwien.geolocation_android.R
@@ -37,6 +40,10 @@ class LocationDetails : Fragment() {
         toolbar.setNavigationOnClickListener { view ->
             view.findNavController().navigate(R.id.action_locationDetails_pop)
         }
+
+        //instance of a requestService added here for testing purposes (needs to be removed later)
+        val requestService =  LocationRequestService()
+        requestService.getMLSInfo(this.context as Context, this.activity as Activity)
 
         return v
     }
