@@ -8,6 +8,7 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.telephony.*
 import android.util.Log
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import at.tuwien.geolocation_android.DataObjects.CellTower
 import at.tuwien.geolocation_android.DataObjects.WifiAccessPoint
@@ -17,10 +18,12 @@ import com.android.volley.toolbox.JsonObjectRequest
 import org.json.JSONObject
 import com.android.volley.toolbox.Volley
 import com.google.gson.GsonBuilder
+import com.tuwien.geolocation_android.R
+import kotlinx.android.synthetic.main.fragment_location_details.*
 
 class LocationRequestService {
 
-    fun getMLSInfo(context: Context, activity: Activity) {
+    fun getMLSInfo(context: Context, activity: Activity, textView: TextView) {
         val queue = Volley.newRequestQueue(context)
 
         //URL to the Mozilla Location Service API with the key "test". (Key can be changed)
@@ -77,10 +80,11 @@ class LocationRequestService {
             val jsonRequest = JsonObjectRequest(
                 Request.Method.POST, url, jsonrequest,
                 Response.Listener<JSONObject> { response ->
-                    Log.d(
-                        "Response",
-                        response.toString()
-                    )
+                    textView.text=response.toString()
+//                    Log.d(
+//                        "Response",
+//                        response.toString()
+//                    )
                 },
                 Response.ErrorListener { Log.d("Error", "error") })
 
