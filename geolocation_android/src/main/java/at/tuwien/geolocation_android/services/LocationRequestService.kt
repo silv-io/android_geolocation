@@ -4,15 +4,19 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
 import android.telephony.*
 import android.util.Log
 import androidx.core.content.ContextCompat
 import at.tuwien.geolocation_android.DataObjects.CellTower
+import at.tuwien.geolocation_android.DataObjects.WifiAccessPoint
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import org.json.JSONObject
 import com.android.volley.toolbox.Volley
+import com.google.gson.GsonBuilder
 
 class LocationRequestService {
 
@@ -22,64 +26,67 @@ class LocationRequestService {
         //URL to the Mozilla Location Service API with the key "test". (Key can be changed)
         val url = "https://location.services.mozilla.com/v1/geolocate?key=test"
 
-        val manager: TelephonyManager =
+        val telephonyManager: TelephonyManager =
             context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
+        val wifiManager: WifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.ACCESS_WIFI_STATE
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Permission is not granted
             Log.d(
-                "ACCESS_COARSE_LOCATION_PERMISSION_DENIED",
-                "ACCESS_COARSE_LOCATION_PERMISSION_DENIED"
+                "PERMISSION_DENIED",
+                "CHECK APP PERMISSIONS"
             )
 
         } else {
 
-            val celltowers = getTowerInfo(manager.allCellInfo)
-            Log.d("CELLTOWERS_INFO_FOR_JSON", celltowers.toString())
+            val cellTowers = getTowerInfo(telephonyManager.allCellInfo)
+            //Log.d("CELLTOWERS_INFO_FOR_JSON", cellTowers.toString())
 
-            //TODO: convert celltower info into JSON and get WIFI-AccessPointFields
+            //Log.d("CONNECTION INFO ------------->", wifiManager.connectionInfo.toString())
+            //Log.d("SCAN RESULTS ------------->", wifiManager.scanResults.toString())
+
+            val wifiAccessPoints = getWifiAccessPointInfo(wifiManager.scanResults)
 
 
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            val gsonTowers = gson.toJson(cellTowers)
+            Log.d("JSON_OF_CELLTOWERS", gsonTowers)
+            val gsonWifiAccessPoints = gson.toJson(wifiAccessPoints)
+            Log.d("JSON_OF_WIFIACCESSPOINTS", gsonWifiAccessPoints)
+
+            var requestObject: String = "{\n"
+            if (cellTowers.isNotEmpty()) requestObject += "\"cellTowers\": " + gsonTowers
+            //check for wifiaccesspoints here
+            if (wifiAccessPoints.isNotEmpty()) requestObject += ",\n\"wifiAccessPoints\": " + gsonWifiAccessPoints
+            requestObject += "\n}"
+
+
+
+            val jsonrequest = JSONObject(
+                requestObject
+            )
+
+            Log.d("JSONREQUEST", requestObject)
+
+            val jsonRequest = JsonObjectRequest(
+                Request.Method.POST, url, jsonrequest,
+                Response.Listener<JSONObject> { response ->
+                    Log.d(
+                        "Response",
+                        response.toString()
+                    )
+                },
+                Response.ErrorListener { Log.d("Error", "error") })
+
+            // Add the request to the RequestQueue.
+            queue.add(jsonRequest)
         }
-
-
-        //hardcoded dummy request
-        val jsonrequest = JSONObject(
-            "{\n" +
-                    "    \"wifiAccessPoints\": [{\n" +
-                    "        \"macAddress\": \"01:23:45:67:89:ab\",\n" +
-                    "        \"signalStrength\": -51\n" +
-                    "    }, {\n" +
-                    "        \"macAddress\": \"01:23:45:67:89:cd\"\n" +
-                    "    }]\n" +
-                    "}"
-        )
-
-        val jsonRequest = JsonObjectRequest(
-            Request.Method.POST, url, jsonrequest,
-            Response.Listener<JSONObject> { response ->
-                Log.d(
-                    "Response",
-                    response.toString()
-                )
-            },
-            Response.ErrorListener { Log.d("Error", "error") })
-
-        /*
-            // Request a string response from the provided URL.
-        val stringRequest = StringRequest(
-        Request.Method.POST, url,
-        Response.Listener<String> { response ->
-            // Display the first 500 characters of the response string.
-            textView.text = "Response is: ${response.substring(0, 500)}"
-        },
-        Response.ErrorListener { textView.text = "That didn't work!" })
-        */
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonRequest)
 
     }
 
@@ -89,15 +96,9 @@ class LocationRequestService {
         Log.d("CELLINFO", cellinfo.toString())
         val celltowers: MutableList<CellTower> = mutableListOf<CellTower>()
         for (cell_info_entry in cellinfo) {
-            /*if (cell_info_entry is CellInfoWcdma){
-                celltowers+="wcda"
-                val cellinfowcdma = cell_info_entry as CellInfoWcdma
-                cellinfowcdma.cellIdentity.mcc
-            }
-            cell_info_entry*/
+
             val newTower = CellTower()
-            //val cellinfowcdma = cell_info_entry as CellInfoWcdma
-            //cellinfowcdma.cellSignalStrength.
+
 
             newTower.radioType = when (cell_info_entry) {
                 is CellInfoWcdma -> "wcdma"
@@ -129,13 +130,16 @@ class LocationRequestService {
                 is CellInfoGsm -> cell_info_entry.cellIdentity.cid
                 else -> null
             }
+
+            //newTower.age ...
+
             newTower.psc = when (cell_info_entry) {
                 is CellInfoWcdma -> cell_info_entry.cellIdentity.psc
                 is CellInfoLte -> cell_info_entry.cellIdentity.pci
                 is CellInfoGsm -> cell_info_entry.cellIdentity.psc
                 else -> null
             }
-            newTower.signalstrength = when (cell_info_entry) {
+            newTower.signalStrength = when (cell_info_entry) {
                 is CellInfoWcdma -> cell_info_entry.cellSignalStrength.asuLevel
                 is CellInfoLte -> cell_info_entry.cellSignalStrength.asuLevel
                 is CellInfoGsm -> cell_info_entry.cellSignalStrength.asuLevel
@@ -149,5 +153,24 @@ class LocationRequestService {
 
         }
         return celltowers
+    }
+
+    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult>): MutableList<WifiAccessPoint>{
+
+        val wifiAccessPoints: MutableList<WifiAccessPoint> = mutableListOf<WifiAccessPoint>()
+        for (wifi_info_entry in wifiInfo){
+            if(!wifi_info_entry.SSID.contains("_nomap")) {
+                val newWifiAccessPoint = WifiAccessPoint()
+                newWifiAccessPoint.macAddress = wifi_info_entry.BSSID
+                //newWifiAccessPoint.age = wifi_info_entry.timestamp as Int
+                newWifiAccessPoint.channel = wifi_info_entry.channelWidth
+                newWifiAccessPoint.frequency = wifi_info_entry.frequency
+                newWifiAccessPoint.signalStrength = wifi_info_entry.level
+                //newWifiAccessPoint.signalToNoiseRatio
+                newWifiAccessPoint.ssid = wifi_info_entry.SSID
+                wifiAccessPoints.add(newWifiAccessPoint)
+            }
+        }
+        return wifiAccessPoints
     }
 }
