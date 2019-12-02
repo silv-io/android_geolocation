@@ -1,4 +1,4 @@
-package at.tuwien.geolocation_android
+package at.tuwien.android_geolocation.view.ui.location
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

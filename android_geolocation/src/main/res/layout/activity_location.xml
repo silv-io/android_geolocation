@@ -5,7 +5,7 @@
     android:id="@+id/location_list_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="at.tuwien.geolocation_android.LocationActivity">
+    tools:context="at.tuwien.android_geolocation.view.ui.location.LocationActivity">
 
     <fragment
         android:id="@+id/fragment"

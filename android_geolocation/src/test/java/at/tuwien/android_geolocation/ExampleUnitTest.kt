@@ -1,4 +1,4 @@
-package at.tuwien.geolocation_android
+package at.tuwien.android_geolocation
 
 import org.junit.Test
 

@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="at.tuwien.geolocation_android.LocationActivity"
+            android:name="at.tuwien.android_geolocation.view.ui.location.LocationActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

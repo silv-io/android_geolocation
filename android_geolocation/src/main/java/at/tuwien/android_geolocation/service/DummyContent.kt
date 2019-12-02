@@ -1,4 +1,4 @@
-package at.tuwien.geolocation_android.dummy
+package at.tuwien.android_geolocation.service
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -43,7 +43,9 @@ object DummyContent {
         return DummyItem(
             position.toString(),
             "Item " + position,
-            makeDetails(position)
+            makeDetails(
+                position
+            )
         )
     }
 

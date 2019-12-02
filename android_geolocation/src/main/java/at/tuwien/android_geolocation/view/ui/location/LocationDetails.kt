@@ -1,4 +1,4 @@
-package at.tuwien.geolocation_android
+package at.tuwien.android_geolocation.view.ui.location
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
+import at.tuwien.android_geolocation.viewmodel.location.LocationDetailsViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tuwien.geolocation_android.R
@@ -15,7 +16,8 @@ import com.tuwien.geolocation_android.R
 class LocationDetails : Fragment() {
 
     companion object {
-        fun newInstance() = LocationDetails()
+        fun newInstance() =
+            LocationDetails()
     }
 
     private lateinit var viewModel: LocationDetailsViewModel

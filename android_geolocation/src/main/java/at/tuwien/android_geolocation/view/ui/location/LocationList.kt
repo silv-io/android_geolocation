@@ -1,4 +1,4 @@
-package at.tuwien.geolocation_android
+package at.tuwien.android_geolocation.view.ui.location
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import at.tuwien.geolocation_android.dummy.DummyContent
+import at.tuwien.android_geolocation.service.DummyContent
+import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
