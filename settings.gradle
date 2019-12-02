@@ -1,2 +1,2 @@
-include ':geolocation_android'
+include ':android_geolocation'
 rootProject.name='MNS_UI_Prototype_1'
