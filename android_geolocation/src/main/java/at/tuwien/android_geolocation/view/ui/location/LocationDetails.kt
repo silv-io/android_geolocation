@@ -5,48 +5,56 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.findNavController
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import at.tuwien.android_geolocation.util.EventObserver
+import at.tuwien.android_geolocation.util.getViewModelFactory
+import at.tuwien.android_geolocation.util.setupSnackbar
 import at.tuwien.android_geolocation.viewmodel.location.LocationDetailsViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tuwien.geolocation_android.R
+import com.tuwien.geolocation_android.databinding.FragmentLocationDetailsBinding
 
 
 class LocationDetails : Fragment() {
+    private lateinit var viewDataBinding: FragmentLocationDetailsBinding
+
+    //todo navargs
+
+    private val viewModel by viewModels<LocationDetailsViewModel> { getViewModelFactory() }
 
     companion object {
         fun newInstance() =
             LocationDetails()
     }
 
-    private lateinit var viewModel: LocationDetailsViewModel
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        view?.setupSnackbar(this, viewModel.snackbarText, Snackbar.LENGTH_SHORT)
+        setupNavigation()
+    }
+
+    private fun setupNavigation() {
+        viewModel.deleteLocationEvent.observe(this, EventObserver {
+            findNavController().navigate(R.id.action_locationDetails_pop)
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v: View = inflater.inflate(R.layout.fragment_location_details, container, false)
-
-        val fab_delete: FloatingActionButton = v.findViewById(R.id.fab_delete)
-        val toolbar: androidx.appcompat.widget.Toolbar = v.findViewById(R.id.detail_toolbar)
-
-        fab_delete.setOnClickListener {
-            Snackbar.make(v, "Delete action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+        val view = inflater.inflate(R.layout.fragment_location_details, container, false)
+        val viewDataBinding = FragmentLocationDetailsBinding.bind(view).apply {
+            vm = viewModel
         }
+        viewDataBinding.lifecycleOwner = this.viewLifecycleOwner
 
-        toolbar.setNavigationOnClickListener { view ->
-            view.findNavController().navigate(R.id.action_locationDetails_pop)
-        }
+        //TODO: choose argument
+        viewModel.init(1)
 
-        return v
+        return view
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(LocationDetailsViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
 
 }

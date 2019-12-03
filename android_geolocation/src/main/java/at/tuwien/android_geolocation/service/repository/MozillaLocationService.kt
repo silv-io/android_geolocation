@@ -1,0 +1,3 @@
+package at.tuwien.android_geolocation.service.repository
+
+class MozillaLocationService

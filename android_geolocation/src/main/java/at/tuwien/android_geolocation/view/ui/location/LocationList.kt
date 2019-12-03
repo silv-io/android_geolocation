@@ -5,11 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import at.tuwien.android_geolocation.service.DummyContent
+import at.tuwien.android_geolocation.util.getViewModelFactory
+import at.tuwien.android_geolocation.viewmodel.location.LocationDetailsViewModel
 import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -21,7 +25,7 @@ import java.util.*
 
 class LocationList : Fragment() {
 
-    private lateinit var viewModel: LocationListViewModel
+    private val viewModel by viewModels<LocationDetailsViewModel> { getViewModelFactory() }
 
     @Volatile private var numChecked: Int = 0
     private lateinit var fab: FloatingActionButton
@@ -49,7 +53,6 @@ class LocationList : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(LocationListViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
