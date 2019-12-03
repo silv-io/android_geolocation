@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MNS_UI_Prototype_1</string>
+    <string name="app_name">Android Geolocation</string>
     <string name="title_item_detail">Item Detail</string>
 
     <string name="default_location_detail_title">Date and Time</string>
