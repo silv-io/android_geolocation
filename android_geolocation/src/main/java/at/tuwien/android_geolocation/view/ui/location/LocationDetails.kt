@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import at.tuwien.android_geolocation.util.EventObserver
 import at.tuwien.android_geolocation.util.getViewModelFactory
 import at.tuwien.android_geolocation.util.setupSnackbar
@@ -20,6 +21,8 @@ class LocationDetails : Fragment() {
     private lateinit var viewDataBinding: FragmentLocationDetailsBinding
 
     //todo navargs
+    val args: LocationDetailsArgs by navArgs()
+
 
     private val viewModel by viewModels<LocationDetailsViewModel> { getViewModelFactory() }
 

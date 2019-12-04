@@ -9,20 +9,28 @@
         android:id="@+id/locationList"
         android:name="at.tuwien.android_geolocation.view.ui.location.LocationList"
         android:label="location_list_fragment"
-        tools:layout="@layout/fragment_location_list" >
+        tools:layout="@layout/fragment_location_list">
         <action
             android:id="@+id/action_locationList_to_locationDetails"
             app:destination="@id/locationDetails"
-            app:launchSingleTop="true" />
+            app:launchSingleTop="true">
+            <argument
+                android:name="locationId"
+                android:defaultValue="1L"
+                app:argType="long" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/locationDetails"
         android:name="at.tuwien.android_geolocation.view.ui.location.LocationDetails"
         android:label="location_details_fragment"
-        tools:layout="@layout/fragment_location_details" >
+        tools:layout="@layout/fragment_location_details">
         <action
             android:id="@+id/action_locationDetails_pop"
             app:popUpTo="@id/locationDetails"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="locationId"
+            app:argType="long" />
     </fragment>
 </navigation>

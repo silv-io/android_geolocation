@@ -28,7 +28,7 @@ interface LocationDao {
      * @param task the task to be inserted.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLocation(location: Location)
+    suspend fun insertLocation(location: Location): Long
 
     /**
      * Delete a location by id.

@@ -9,7 +9,7 @@ import kotlin.math.abs
 @Entity(tableName = "locations")
 @TypeConverters(Converters::class)
 data class Location(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long,
     @Embedded(prefix = "gps_") val gps: Position,
     @Embedded(prefix = "mls_") val mls: Position,
     @ColumnInfo(name = "captureTime") val captureTime: Date,

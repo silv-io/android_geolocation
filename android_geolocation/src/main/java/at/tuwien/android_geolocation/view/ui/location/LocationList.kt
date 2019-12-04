@@ -1,67 +1,83 @@
 package at.tuwien.android_geolocation.view.ui.location
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import at.tuwien.android_geolocation.service.DummyContent
+import at.tuwien.android_geolocation.util.EventObserver
 import at.tuwien.android_geolocation.util.getViewModelFactory
-import at.tuwien.android_geolocation.viewmodel.location.LocationDetailsViewModel
+import at.tuwien.android_geolocation.util.setupSnackbar
+import at.tuwien.android_geolocation.view.adapter.LocationListAdapter
 import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tuwien.geolocation_android.R
+import com.tuwien.geolocation_android.databinding.FragmentLocationListBinding
 import kotlinx.android.synthetic.main.item_list_content.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class LocationList : Fragment() {
 
-    private val viewModel by viewModels<LocationDetailsViewModel> { getViewModelFactory() }
+    private val viewModel by viewModels<LocationListViewModel> { getViewModelFactory() }
 
-    @Volatile private var numChecked: Int = 0
+    private lateinit var viewDataBinding: FragmentLocationListBinding
+
+    private lateinit var listAdapter: LocationListAdapter
+
+    @Volatile
+    private var numChecked: Int = 0
     private lateinit var fab: FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v:View = inflater.inflate(R.layout.fragment_location_list, container, false)
-        fab = v.findViewById(R.id.fab)
-        val itemList: RecyclerView = v.findViewById(R.id.item_list)
-
-        fab.setOnClickListener { view ->
-            if (numChecked == 0) {
-                view.findNavController().navigate(R.id.action_locationList_to_locationDetails)
-            } else {
-                Snackbar.make(v, "Delete action", Snackbar.LENGTH_LONG).show()
-            }
+        viewDataBinding = FragmentLocationListBinding.inflate(inflater, container, false).apply {
+            vm = viewModel
         }
-
-        setupRecyclerView(itemList, v)
-
-        return v
+        return viewDataBinding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        // TODO: Use the ViewModel
+
+        viewDataBinding.lifecycleOwner = this.viewLifecycleOwner
+        view?.setupSnackbar(this, viewModel.snackbarText, Snackbar.LENGTH_SHORT)
+        setUpListAdapter()
+        setUpNavigation()
+
+        viewModel.loadLocations()
     }
 
-    private fun setupRecyclerView(recyclerView: RecyclerView, fragmentView: View) {
-        recyclerView.adapter =
-            SimpleItemRecyclerViewAdapter(
-                fragmentView,
-                DummyContent.ITEMS
+    private fun setUpNavigation() {
+        viewModel.openLocationEvent.observe(this, EventObserver {
+            val action = LocationListDirections.actionLocationListToLocationDetails(it)
+            findNavController().navigate(action)
+        })
+    }
+
+    private fun setUpListAdapter() {
+        val viewModel = viewDataBinding.vm
+        if (viewModel != null) {
+            listAdapter = LocationListAdapter(viewModel)
+            viewDataBinding.itemList.adapter = listAdapter
+        } else {
+            Log.println(
+                Log.WARN,
+                "location_list",
+                "viewModel not initialized when setting up adapter"
             )
+        }
     }
 
     inner class SimpleItemRecyclerViewAdapter(
@@ -69,12 +85,14 @@ class LocationList : Fragment() {
         private val values: List<DummyContent.DummyItem>
     ) : RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
-        private val onClickListener: View.OnClickListener = View.OnClickListener {v ->
+        private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
             if (numChecked > 0) {
                 toggleCard(v as MaterialCardView)
             } else {
+                //TODO: check selected
+                val action = LocationListDirections.actionLocationListToLocationDetails(2)
                 fragmentView.findNavController()
-                    .navigate(R.id.action_locationList_to_locationDetails)
+                    .navigate(action)
             }
         }
 
@@ -92,9 +110,19 @@ class LocationList : Fragment() {
             }
 
             if (numChecked > 0) {
-                fab.setImageDrawable(resources.getDrawable(R.mipmap.baseline_delete_forever_white_24, context?.theme))
+                fab.setImageDrawable(
+                    resources.getDrawable(
+                        R.mipmap.baseline_delete_forever_white_24,
+                        context?.theme
+                    )
+                )
             } else {
-                fab.setImageDrawable(resources.getDrawable(R.mipmap.baseline_add_white_24, context?.theme))
+                fab.setImageDrawable(
+                    resources.getDrawable(
+                        R.mipmap.baseline_add_white_24,
+                        context?.theme
+                    )
+                )
             }
         }
 
