@@ -35,7 +35,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/item_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:src="@{vm.items}"
+                app:layoutManager="LinearLayoutManager"
+                app:layout_anchor="@+id/frameLayout"
+                app:layout_anchorGravity="center" />
         </FrameLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -52,16 +61,7 @@
             app:tint="@color/primaryTextColor" />
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/item_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:src="@{vm.items}"
-            app:layoutManager="LinearLayoutManager"
-            app:layout_anchor="@+id/frameLayout"
-            app:layout_anchorGravity="center" />
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
