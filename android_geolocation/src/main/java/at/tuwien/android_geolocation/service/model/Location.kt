@@ -3,16 +3,16 @@ package at.tuwien.android_geolocation.service.model
 import androidx.room.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.util.*
+import org.joda.time.DateTime
 import kotlin.math.abs
 
 @Entity(tableName = "locations")
 @TypeConverters(Converters::class)
 data class Location(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long = 0L,
     @Embedded(prefix = "gps_") val gps: Position,
     @Embedded(prefix = "mls_") val mls: Position,
-    @ColumnInfo(name = "captureTime") val captureTime: Date,
+    @ColumnInfo(name = "captureTime") val captureTime: DateTime,
     @ColumnInfo(name = "params") val params: Map<String, String>
 )
 
@@ -37,13 +37,13 @@ data class Position(
 
 class Converters {
     @TypeConverter
-    fun fromTimestamp(value: Long?): Date? {
-        return value?.let { Date(it) }
+    fun fromTimestamp(value: Long?): DateTime? {
+        return value?.let { DateTime(it) }
     }
 
     @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? {
-        return date?.time
+    fun dateTimeToTimestamp(dateTime: DateTime?): Long? {
+        return dateTime?.millis
     }
 
     @TypeConverter

@@ -1,23 +1,19 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import at.tuwien.android_geolocation.service.model.Location
-import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
-import java.util.*
-import kotlin.collections.HashMap
+import at.tuwien.android_geolocation.util.Result
+import kotlinx.coroutines.launch
 
 
 class LocationListViewModel(private val locationRepository: LocationRepository) : ViewModel() {
     private val _items = MutableLiveData<List<Location>>().apply { value = emptyList() }
     val items: LiveData<List<Location>> = _items
-
-    private val _dataLoading = MutableLiveData<Boolean>()
-    val dataLoading: LiveData<Boolean> = _dataLoading
 
     private val _openLocationEvent = MutableLiveData<Event<Long>>()
     val openLocationEvent: LiveData<Event<Long>> = _openLocationEvent
@@ -25,40 +21,22 @@ class LocationListViewModel(private val locationRepository: LocationRepository) 
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
-    private var idCounter = 1L
-    private val mockArrayList = mutableListOf<Location>()
 
     fun loadLocations() {
-        Log.println(Log.INFO, "location_list_vm", "loading locations: $mockArrayList")
-        val copy = mockArrayList.toMutableList()
-        _items.value = copy
+        viewModelScope.launch {
+            val result = locationRepository.getLocations()
+            (result as? Result.Success)?.let {
+                _items.value = result.data
+            }
+        }
     }
-
-
 
     fun shortPressLocation(locationId: Long) {
         _openLocationEvent.value = Event(locationId)
     }
 
-    fun fabClick() {
-        Log.println(Log.INFO, "location_list_vm", "fab click")
-        mockArrayList.add(newLocation())
-        loadLocations()
-    }
-
-
-    private fun newLocation(): Location {
-        val location = Location(
-            idCounter++,
-            Position(1.2, 2.3, 4.5),
-            Position(6.7, 8.9, 0.1),
-            Date(2019, 12, 12, 23, 54, 34),
-            HashMap<String, String>()
-        )
-        return location
-    }
-
-    private fun deleteLocations() {
-
+    fun fabClick() = viewModelScope.launch {
+        val result = locationRepository.newLocation()
+        (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
     }
 }

@@ -1,6 +1,9 @@
 package at.tuwien.android_geolocation.service.model
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 @Dao
 interface LocationDao {
@@ -20,7 +23,7 @@ interface LocationDao {
      * @return the location with locationId.
      */
     @Query("SELECT * FROM locations WHERE id = :locationId")
-    suspend fun getLocationById(locationId: Int): Location?
+    suspend fun getLocationById(locationId: Long): Location?
 
     /**
      * Insert a location in the database. If the location already exists, replace it.
@@ -36,7 +39,7 @@ interface LocationDao {
      * @return the number of locations deleted. This should always be 1.
      */
     @Query("DELETE FROM locations WHERE id = :locationId")
-    suspend fun deleteLocationById(locationId: Int): Int
+    suspend fun deleteLocationById(locationId: Long): Int
 
     /**
      * Delete all tasks.
