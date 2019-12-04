@@ -32,6 +32,9 @@ class LocationDetailsViewModel(private val locationRepository: LocationRepositor
         _deleteLocationEvent.value = Event(locationRepository.deleteLocation(locationId))
     }
 
+    fun sendLocation(locationId: Long) = viewModelScope.launch {
+        //TODO: Send entry
+    }
 
     private fun showSnackbarMessage(@StringRes message: Int) {
         _snackbarText.value = Event(message)

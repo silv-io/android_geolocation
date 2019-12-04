@@ -113,14 +113,14 @@ class LocationList : Fragment() {
             if (numChecked > 0) {
                 fab.setImageDrawable(
                     resources.getDrawable(
-                        R.mipmap.baseline_delete_forever_white_24,
+                        R.drawable.ic_delete_forever_white,
                         context?.theme
                     )
                 )
             } else {
                 fab.setImageDrawable(
                     resources.getDrawable(
-                        R.mipmap.baseline_add_white_24,
+                        R.drawable.ic_add_white,
                         context?.theme
                     )
                 )

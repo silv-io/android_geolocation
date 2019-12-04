@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable
             name="vm"
@@ -7,8 +9,6 @@
 
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="at.tuwien.android_geolocation.view.ui.location.LocationDetails" >
@@ -220,12 +220,29 @@
             android:layout_margin="@dimen/fab_margin"
             android:backgroundTint="@color/secondaryColor"
             android:backgroundTintMode="src_atop"
-            android:src="@mipmap/baseline_delete_forever_white_24"
             android:onClick="@{() -> vm.deleteLocation(vm.location.id)}"
-            app:tint="@color/primaryTextColor"
+            android:src="@drawable/ic_delete_forever_white"
             app:fabSize="auto"
             app:layout_anchor="@+id/item_detail_container"
-            app:layout_anchorGravity="top|end" />
+            app:layout_anchorGravity="top|end"
+            app:tint="@color/primaryTextColor"
+            app:useCompatPadding="true" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="@dimen/fab_margin"
+            android:backgroundTint="@color/secondaryColor"
+            android:backgroundTintMode="src_atop"
+            android:onClick="@{() -> vm.sendLocation(vm.location.id)}"
+            android:src="@drawable/ic_email_white"
+            app:fabSize="auto"
+            app:layout_anchor="@+id/fab_delete"
+            app:layout_anchorGravity="left"
+            app:tint="@color/primaryTextColor"
+            app:useCompatPadding="true" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
