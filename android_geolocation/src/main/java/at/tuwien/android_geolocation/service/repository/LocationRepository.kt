@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation.service.repository
 
 import android.util.Log
+import at.tuwien.android_geolocation.service.MozillaLocationService
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.Position

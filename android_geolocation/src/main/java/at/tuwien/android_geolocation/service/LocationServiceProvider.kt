@@ -3,7 +3,6 @@ package at.tuwien.android_geolocation.service
 import android.content.Context
 import androidx.room.Room
 import at.tuwien.android_geolocation.service.repository.LocationRepository
-import at.tuwien.android_geolocation.service.repository.MozillaLocationService
 
 object LocationServiceProvider {
 
