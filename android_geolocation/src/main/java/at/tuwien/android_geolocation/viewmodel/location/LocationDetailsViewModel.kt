@@ -26,9 +26,9 @@ class LocationDetailsViewModel(private val locationRepository: LocationRepositor
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
-    fun init(locationId: Int) {
+    fun init(locationId: Long) {
         this._location.value = Location(
-            1,
+            locationId,
             Position(1.2, 2.3, 4.5),
             Position(6.7, 8.9, 0.1),
             Date(2019, 12, 12, 23, 54, 34),

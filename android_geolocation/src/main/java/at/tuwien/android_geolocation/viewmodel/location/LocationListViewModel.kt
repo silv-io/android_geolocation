@@ -38,7 +38,10 @@ class LocationListViewModel(private val locationRepository: LocationRepository) 
     )
 
     fun loadLocations() {
-        _items.value = mockArrayList
+        Log.println(Log.INFO, "location_list_vm", "loading locations: $mockArrayList")
+        val copy = mockArrayList.toMutableList()
+        _items.value = copy
+        Log.println(Log.INFO, "location_list_vm", "itemsvalue: ${items.value}")
     }
 
     fun longPressLocation(locationId: Long) {
@@ -46,7 +49,7 @@ class LocationListViewModel(private val locationRepository: LocationRepository) 
     }
 
     fun shortPressLocation(locationId: Long) {
-
+        _openLocationEvent.value = Event(locationId)
     }
 
     fun fabClick() {

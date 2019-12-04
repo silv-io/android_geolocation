@@ -54,7 +54,7 @@ class LocationDetails : Fragment() {
         viewDataBinding.lifecycleOwner = this.viewLifecycleOwner
 
         //TODO: choose argument
-        viewModel.init(1)
+        viewModel.init(args.locationId)
 
         return view
     }
