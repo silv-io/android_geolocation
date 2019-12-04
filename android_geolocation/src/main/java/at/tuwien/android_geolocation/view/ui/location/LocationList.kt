@@ -55,14 +55,10 @@ class LocationList : Fragment() {
         view?.setupSnackbar(this, viewModel.snackbarText, Snackbar.LENGTH_SHORT)
         setUpListAdapter()
         setUpNavigation()
-        setUpRefresh()
 
         viewModel.loadLocations()
     }
 
-    private fun setUpRefresh() {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     private fun setUpNavigation() {
         viewModel.openLocationEvent.observe(this, EventObserver {

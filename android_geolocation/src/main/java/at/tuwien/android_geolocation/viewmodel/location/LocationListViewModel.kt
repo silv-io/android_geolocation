@@ -9,7 +9,6 @@ import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 
@@ -27,26 +26,15 @@ class LocationListViewModel(private val locationRepository: LocationRepository) 
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
     private var idCounter = 1L
-    private val mockArrayList = mutableListOf(
-        Location(
-            idCounter++,
-            Position(1.2, 2.3, 4.5),
-            Position(6.7, 8.9, 0.1),
-            Date(2019, 12, 12, 23, 54, 34),
-            HashMap<String, String>()
-        )
-    )
+    private val mockArrayList = mutableListOf<Location>()
 
     fun loadLocations() {
         Log.println(Log.INFO, "location_list_vm", "loading locations: $mockArrayList")
         val copy = mockArrayList.toMutableList()
         _items.value = copy
-        Log.println(Log.INFO, "location_list_vm", "itemsvalue: ${items.value}")
     }
 
-    fun longPressLocation(locationId: Long) {
 
-    }
 
     fun shortPressLocation(locationId: Long) {
         _openLocationEvent.value = Event(locationId)
@@ -58,18 +46,19 @@ class LocationListViewModel(private val locationRepository: LocationRepository) 
         loadLocations()
     }
 
+
     private fun newLocation(): Location {
-        return Location(
+        val location = Location(
             idCounter++,
             Position(1.2, 2.3, 4.5),
             Position(6.7, 8.9, 0.1),
             Date(2019, 12, 12, 23, 54, 34),
             HashMap<String, String>()
         )
+        return location
     }
 
     private fun deleteLocations() {
 
     }
-    //val locations: LiveData<List<Location>> = repository.locations
 }
