@@ -2,9 +2,7 @@ package at.tuwien.android_geolocation.view.ui.location
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -45,7 +43,23 @@ class LocationList : Fragment() {
         viewDataBinding = FragmentLocationListBinding.inflate(inflater, container, false).apply {
             vm = viewModel
         }
+
+        setHasOptionsMenu(true)
+
         return viewDataBinding.root
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) =
+        when (item.itemId) {
+            R.id.menu_enable_security -> {
+                viewModel.secureMenuAction()
+                true
+            }
+            else -> false
+        }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.list_menu, menu)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

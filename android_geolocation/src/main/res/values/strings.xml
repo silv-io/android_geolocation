@@ -11,4 +11,14 @@
     <string name="label_diff_gps_mls">Difference MLS / GPS</string>
     <string name="snackbar_deleted_location">Deleted Location!</string>
     <string name="snackbar_sent_location">Sent Location!</string>
+
+    <string name="logo_content_description">TU Wien Logo</string>
+    <string name="icon_lock_description">Lock Icon</string>
+
+    <string name="menu_security_item">Enable Security</string>
+
+    <string name="pop_up_heading">Security Settings</string>
+    <string name="pop_up_password">Password</string>
+    <string name="pop_up_encrypt">Enable Security</string>
+    <string name="pop_up_cancel">Cancel</string>
 </resources>

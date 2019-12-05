@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,12 +21,14 @@ class LocationListViewModel(
     private val _items = MutableLiveData<List<Location>>().apply { value = emptyList() }
     val items: LiveData<List<Location>> = _items
 
+    val _securityPopupVisibility = MutableLiveData<Boolean>().apply {  value = false }
+    val securityPopupVisibility: LiveData<Boolean> = _securityPopupVisibility
+
     private val _openLocationEvent = MutableLiveData<Event<Long>>()
     val openLocationEvent: LiveData<Event<Long>> = _openLocationEvent
 
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
-
 
     fun loadLocations() {
         viewModelScope.launch {
@@ -43,6 +46,11 @@ class LocationListViewModel(
     fun fabClick() = viewModelScope.launch {
         val result = locationRepository.newLocation()
         (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+    }
+
+    fun secureMenuAction()  = viewModelScope.launch {
+        Log.println(Log.WARN, "SHOW", "POPUP")
+        _securityPopupVisibility.value = !(_securityPopupVisibility.value!!)
     }
 
     //TODO: use somewhere

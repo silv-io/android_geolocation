@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View"/>
+
         <variable
             name="vm"
             type="at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel" />
@@ -14,21 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="at.tuwien.android_geolocation.view.ui.location.LocationList">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:title="@string/app_name" />
-
-        </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/frameLayout"
@@ -46,6 +33,51 @@
                 app:layout_anchor="@+id/frameLayout"
                 app:layout_anchorGravity="center" />
         </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="@color/popupBackground"
+            android:orientation="vertical"
+            android:padding="@dimen/item_content_padding"
+            android:visibility="@{vm.securityPopupVisibility ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:id="@+id/heading_popup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/pop_up_heading"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/label_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/pop_up_password" />
+
+            <EditText
+                android:id="@+id/txt_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPassword" />
+
+            <Button
+                android:id="@+id/btn_security"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/pop_up_encrypt" />
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/secondaryLightColor"
+                android:text="@string/pop_up_cancel" />
+        </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
