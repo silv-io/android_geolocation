@@ -11,7 +11,10 @@ import com.google.android.material.snackbar.Snackbar
 fun Fragment.getViewModelFactory(): ViewModelFactory {
     val repository =
         (requireContext().applicationContext as GeolocationApplication).locationRepository
-    return ViewModelFactory(repository)
+    return ViewModelFactory(
+        repository,
+        (requireContext().applicationContext as GeolocationApplication)
+    )
 }
 
 fun View.setupSnackbar(
@@ -29,7 +32,7 @@ fun View.setupSnackbar(
 
 fun View.showSnackbar(snackbarText: String, timeLength: Int) {
     Snackbar.make(this, snackbarText, timeLength).run {
-//        addCallback(object : Snackbar.Callback() {
+        //        addCallback(object : Snackbar.Callback() {
 //            override fun onShown(sb: Snackbar?) {
 //                EspressoIdlingResource.increment()
 //            }
