@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
+import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -38,7 +39,15 @@ class LocationDetailsViewModel(
 
     fun sendLocation(locationId: Long) = viewModelScope.launch {
         val context = getApplication<Application>().applicationContext
-        //TODO: Send entry
+
+        val uri = locationRepository.createTemporaryLocationPlaintextFile(context, _location.value!!.toPlaintextString())
+
+        val emailIntent = Intent(Intent.ACTION_SEND)
+        emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        emailIntent.type = "text/plain"
+        emailIntent.putExtra(Intent.EXTRA_STREAM, uri)
+
+        context.startActivity(emailIntent)
     }
 
     private fun showSnackbarMessage(@StringRes message: Int) {

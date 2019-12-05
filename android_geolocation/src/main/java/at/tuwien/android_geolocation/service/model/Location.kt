@@ -14,7 +14,18 @@ data class Location(
     @Embedded(prefix = "mls_") val mls: Position,
     @ColumnInfo(name = "captureTime") val captureTime: DateTime,
     @ColumnInfo(name = "params") val params: Map<String, String>
-)
+) {
+    fun toPlaintextString(): String {
+        val builder: StringBuilder = StringBuilder()
+
+        builder.append("Timestamp: " + this.captureTime + System.lineSeparator())
+        builder.append("GPS: " + this.gps + System.lineSeparator())
+        builder.append("MLS: " + this.gps + System.lineSeparator())
+        builder.append("MLS parameters: " + this.params)
+
+        return builder.toString()
+    }
+}
 
 data class Position(
     val longitude: Double,
