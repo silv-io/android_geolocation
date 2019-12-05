@@ -1,9 +1,10 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
+import android.app.Application
 import androidx.annotation.StringRes
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
@@ -11,7 +12,10 @@ import at.tuwien.android_geolocation.util.Event
 import at.tuwien.android_geolocation.util.Result
 import kotlinx.coroutines.launch
 
-class LocationDetailsViewModel(private val locationRepository: LocationRepository) : ViewModel() {
+class LocationDetailsViewModel(
+    private val locationRepository: LocationRepository,
+    application: Application
+) : AndroidViewModel(application) {
 
 
     private val _location = MutableLiveData<Location>()
@@ -33,6 +37,7 @@ class LocationDetailsViewModel(private val locationRepository: LocationRepositor
     }
 
     fun sendLocation(locationId: Long) = viewModelScope.launch {
+        val context = getApplication<Application>().applicationContext
         //TODO: Send entry
     }
 
