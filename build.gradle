@@ -6,6 +6,9 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://s3.amazonaws.com/repo.commonsware.com"
+        }
         
     }
     dependencies {
@@ -21,7 +24,9 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        maven {
+            url "https://s3.amazonaws.com/repo.commonsware.com"
+        }
     }
 }
 

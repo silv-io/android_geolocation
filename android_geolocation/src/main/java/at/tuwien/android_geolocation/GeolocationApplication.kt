@@ -13,4 +13,8 @@ class GeolocationApplication : Application() {
         super.onCreate()
         JodaTimeAndroid.init(this)
     }
+
+    fun activateSecureMode(passphrase: ByteArray): Boolean{
+        return LocationServiceProvider.encryptDb(this, passphrase)
+    }
 }

@@ -1,9 +1,11 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.tuwien.android_geolocation.GeolocationApplication
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
@@ -11,7 +13,10 @@ import at.tuwien.android_geolocation.util.Result
 import kotlinx.coroutines.launch
 
 
-class LocationListViewModel(private val locationRepository: LocationRepository) : ViewModel() {
+class LocationListViewModel(
+    private val locationRepository: LocationRepository,
+    application: Application
+) : AndroidViewModel(application) {
     private val _items = MutableLiveData<List<Location>>().apply { value = emptyList() }
     val items: LiveData<List<Location>> = _items
 
@@ -38,5 +43,10 @@ class LocationListViewModel(private val locationRepository: LocationRepository) 
     fun fabClick() = viewModelScope.launch {
         val result = locationRepository.newLocation()
         (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+    }
+
+    //TODO: use somewhere
+    fun secure(passphrase: ByteArray) {
+        getApplication<GeolocationApplication>().activateSecureMode(passphrase)
     }
 }

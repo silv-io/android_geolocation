@@ -19,7 +19,7 @@ class ViewModelFactory constructor(
         with(modelClass) {
             when {
                 isAssignableFrom(LocationListViewModel::class.java) ->
-                    LocationListViewModel(locationRepository)
+                    LocationListViewModel(locationRepository, application)
                 isAssignableFrom(LocationDetailsViewModel::class.java) ->
                     LocationDetailsViewModel(locationRepository,application)
                 else ->
