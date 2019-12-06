@@ -58,10 +58,10 @@ class LocationRepository(
     suspend fun newLocation(): Result<Long> = withContext(ioDispatcher) {
         val location = Location(
             0L,
-            Position(1.2, 2.3, 4.5),
-            Position(6.7, 8.9, 0.1),
-            DateTime.now(),
-            HashMap<String, String>()
+            mls = Position(1.2, 2.3, 4.5), //TODO(call getMLSPosition)
+            gps = Position(6.7, 8.9, 0.1),
+            captureTime = DateTime.now(),
+            params = HashMap<String, String>()
         )
         val locationId = locationDao.insertLocation(location)
         Log.println(Log.INFO,"location_repository", "got locationID: $locationId")
@@ -88,7 +88,7 @@ class LocationRepository(
         return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
     }
 
-    fun queryMLS(mlsRequest: MLSRequest): MLSResponse? {
+    fun getMLSPosition(mlsRequest: MLSRequest): Position? {
         var mlsResponse: MLSResponse? = null
 
         mlsAPI.getMLSLocation(mlsRequest)?.enqueue(object : Callback<MLSResponse?> {
@@ -98,12 +98,29 @@ class LocationRepository(
             }
 
             override fun onResponse(call: Call<MLSResponse?>, response: Response<MLSResponse?>) {
-                if (response.isSuccessful()){
-                    mlsResponse = response.body();
+                if (response.isSuccessful){
+                    mlsResponse = response.body()
                 }
             }
         })
 
-        return mlsResponse
+        if (mlsResponse != null) {
+            val mlsResponseCopy = mlsResponse!!.copy()
+            return validateAndConvertMLSResponse(mlsResponseCopy)
+        }
+        return null
+    }
+
+    private fun validateAndConvertMLSResponse(mlsResponse: MLSResponse): Position {
+        if (mlsResponse.error != null) {
+            Log.println(Log.ERROR, "Error in MLS response", "MLS returned an error " + mlsResponse.error.code)
+            Log.println(Log.ERROR, "Error in MLS response",  mlsResponse.error.message!!)
+        }
+
+        return Position(
+            longitude = mlsResponse.location?.lng!!,
+            latitude = mlsResponse.location.lat!!,
+            accuracy = mlsResponse.accuracy!!
+        )
     }
 }
