@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Android Geolocation</string>
+    <string name="title_item_detail">Item Detail</string>
+
+    <string name="default_location_detail_title">Date and Time</string>
+    <string name="label_gps_coordinates">GPS coordinates</string>
+    <string name="label_mls_coordinates">MLS coordinates</string>
+    <string name="label_gps_accuracy">GPS accuracy (m)</string>
+    <string name="label_mls_accuracy">MLS accuracy (m)</string>
+    <string name="label_mls_parameters">MLS parameters</string>
+    <string name="label_diff_gps_mls">Difference MLS / GPS</string>
+    <string name="snackbar_deleted_location">Deleted Location!</string>
+    <string name="snackbar_sent_location">Sent Location!</string>
+</resources>
