@@ -29,11 +29,9 @@ class LocationRepository(
     private val locationDao: LocationDao,
     private val locationService: MozillaLocationService,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val mlsAPI: MLSAPI = MLSRetrofitService().cteateService(MLSAPI::class.java)
+    private val mlsAPI: MLSAPI = MLSRetrofitService().createService(MLSAPI::class.java)
 
 ) {
-    private var idCounter: Long = 1
-
     suspend fun getLocations(): Result<List<Location>> = withContext(ioDispatcher) {
         return@withContext try {
             Result.Success(locationDao.getLocations())
