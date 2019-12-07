@@ -5,10 +5,13 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
 import android.telephony.*
 import android.util.Log
@@ -17,10 +20,18 @@ import at.tuwien.android_geolocation.service.mls.CellTowerInfo
 import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
 import at.tuwien.android_geolocation.service.model.Position
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.math.pow
 
 class MozillaLocationService : Service() {
 
     private val mozillaLocationBinder = MozillaLocationBinder()
+
+    companion object const {
+        private val oneMinuteInNanos = 6 * 10.0.pow(6)
+    }
 
     inner class MozillaLocationBinder : Binder() {
         fun getService(): MozillaLocationService {
@@ -33,8 +44,14 @@ class MozillaLocationService : Service() {
     }
 
     fun getMLSInfo(): MLSRequest? {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_WIFI_STATE
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             return null
         } else {
@@ -55,20 +72,58 @@ class MozillaLocationService : Service() {
         }
     }
 
-    fun getGPSInfo(): Position? {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
+    suspend fun getGPSInfo(): Position? {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
+            Log.d("MozillaLocationService", "Permission for GPS missing")
             return null
         } else {
-            val locationManager: LocationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            if (location != null) {
-                return Position(location.longitude, location.latitude, location.accuracy.toDouble())
-            }
+            val locationManager: LocationManager =
+                this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val location =
+                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    ?: suspendCancellableCoroutine<Location?> { continuation ->
+                        locationManager.requestSingleUpdate(
+                            LocationManager.GPS_PROVIDER,
+                            object : LocationListener {
+                                override fun onLocationChanged(location: Location?) {
+                                    continuation.resume(location)
+                                }
+
+                                override fun onStatusChanged(
+                                    provider: String?,
+                                    status: Int,
+                                    extras: Bundle?
+                                ) {
+                                    Log.d(
+                                        "MozillaLocationService",
+                                        "LocationListener Status changed"
+                                    )
+                                }
+
+                                override fun onProviderEnabled(provider: String?) {
+                                    Log.d("MozillaLocationService", "Provider enabled")
+                                }
+
+                                override fun onProviderDisabled(provider: String?) {
+                                    continuation.resumeWithException(Exception("Provider was disabled"))
+                                }
+
+                            },
+                            null
+                        )
+                    }
+
+            Log.d("MozillaLocationService", "LocationManager got $location")
+
+            return if (location != null) {
+                Position(location.longitude, location.latitude, location.accuracy.toDouble())
+            } else null
         }
 
-        return null
     }
 
     private fun getTowerInfo(cellinfo: List<CellInfo>): MutableList<CellTowerInfo> {
