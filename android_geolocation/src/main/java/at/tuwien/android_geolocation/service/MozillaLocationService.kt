@@ -1,7 +1,6 @@
 package at.tuwien.android_geolocation.service
 
 import android.Manifest
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,17 +10,14 @@ import android.os.Binder
 import android.os.IBinder
 import android.telephony.*
 import android.util.Log
+import androidx.core.app.JobIntentService
 import androidx.core.content.ContextCompat
 import at.tuwien.android_geolocation.service.mls.CellTowerInfo
 import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
 
-class MozillaLocationService : Service() {
+class MozillaLocationService : JobIntentService() {
 
-    private val myBinder = MozillaLocationBinder()
-
-    override fun onBind(p0: Intent?): IBinder? {
-        return myBinder
-    }
+    private val mozillaLocationBinder = MozillaLocationBinder()
 
     inner class MozillaLocationBinder: Binder() {
         fun getService(): MozillaLocationService {
@@ -29,6 +25,13 @@ class MozillaLocationService : Service() {
         }
     }
 
+    override fun onBind(intent: Intent): IBinder? {
+        return mozillaLocationBinder
+    }
+
+    override fun onHandleWork(intent: Intent) {
+        getMLSInfo()
+    }
 
     fun getMLSInfo() {
            if (ContextCompat.checkSelfPermission(this , Manifest.permission.ACCESS_FINE_LOCATION)
@@ -55,8 +58,6 @@ class MozillaLocationService : Service() {
                //do something with the information
         }
     }
-
-
 
     private fun getTowerInfo(cellinfo: List<CellInfo>): MutableList<CellTowerInfo> {
         val celltowers: MutableList<CellTowerInfo> = mutableListOf<CellTowerInfo>()
@@ -136,8 +137,5 @@ class MozillaLocationService : Service() {
         }
         return wifiAccessPoints
     }
-
-
-
 
 }
