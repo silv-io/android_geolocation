@@ -23,11 +23,11 @@ class LocationActivity : AppCompatActivity() {
         applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         if (
-            /* checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            || */checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this@LocationActivity,
-                arrayOf(/* Manifest.permission.ACCESS_COARSE_LOCATION, */Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_ACCESS_LOCATION
             )
         }

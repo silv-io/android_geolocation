@@ -63,7 +63,7 @@ class LocationRepository(
                 mls = mlsPosition,
                 gps = gps ?: return@withContext Result.Error(Exception("GPS failed")),
                 captureTime = DateTime.now(),
-                params = HashMap<String, String>()
+                params = mlsRequest
             )
 
             val locationId = locationDao.insertLocation(location)

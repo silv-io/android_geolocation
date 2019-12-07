@@ -1,7 +1,6 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData

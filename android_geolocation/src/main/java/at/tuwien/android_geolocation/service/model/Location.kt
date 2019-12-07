@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation.service.model
 
 import androidx.room.*
+import at.tuwien.android_geolocation.service.mls.MLSRequest
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
@@ -13,7 +14,7 @@ data class Location(
     @Embedded(prefix = "gps_") val gps: Position,
     @Embedded(prefix = "mls_") val mls: Position,
     @ColumnInfo(name = "captureTime") val captureTime: DateTime,
-    @ColumnInfo(name = "params") val params: Map<String, String>
+    @ColumnInfo(name = "params") val params: MLSRequest
 ) {
     fun toPlaintextString(): String {
         val builder: StringBuilder = StringBuilder()
@@ -42,16 +43,16 @@ data class Position(
      * @return Distance in Meters
      */
     fun diff(that: Position): Double {
-        val latitudeDifference = Math.toRadians(that.latitude - this.latitude);
-        val longitudeDifference = Math.toRadians(that.longitude - this.longitude);
-        val thisLatitudeRadians = Math.toRadians(this.latitude);
-        val thatLatitudeRadians = Math.toRadians(that.latitude);
+        val latitudeDifference = Math.toRadians(that.latitude - this.latitude)
+        val longitudeDifference = Math.toRadians(that.longitude - this.longitude)
+        val thisLatitudeRadians = Math.toRadians(this.latitude)
+        val thatLatitudeRadians = Math.toRadians(that.latitude)
 
         val a = sin(latitudeDifference / 2).pow(2.toDouble()) + sin(longitudeDifference / 2).pow(
             2.toDouble()
-        ) * cos(thisLatitudeRadians) * cos(thatLatitudeRadians);
-        val c = 2 * asin(sqrt(a));
-        return earthRadiusInMeters * c;
+        ) * cos(thisLatitudeRadians) * cos(thatLatitudeRadians)
+        val c = 2 * asin(sqrt(a))
+        return earthRadiusInMeters * c
     }
 
     override fun toString(): String {
@@ -80,5 +81,17 @@ class Converters {
     fun fromStringMap(map: Map<String, String>): String {
         val gson = Gson()
         return gson.toJson(map)
+    }
+
+    @TypeConverter
+    fun fromMLSRequestToString(request: MLSRequest): String {
+        val gson = Gson()
+        return gson.toJson(request)
+    }
+
+    @TypeConverter
+    fun fromStringToMLSRequest(value: String): MLSRequest {
+        val mlsRequestType = object : TypeToken<MLSRequest>(){}.type
+        return Gson().fromJson(value, mlsRequestType)
     }
 }
