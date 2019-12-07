@@ -67,7 +67,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/item_seperator_margin"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:background="@color/colorPrimaryDark" />
+                    android:background="@color/colorLightGray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/item_seperator_margin"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:background="@color/colorPrimaryDark" />
+                    android:background="@color/colorLightGray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -121,7 +121,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/item_seperator_margin"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:background="@color/colorPrimaryDark" />
+                    android:background="@color/colorLightGray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -148,7 +148,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/item_seperator_margin"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:background="@color/colorPrimaryDark" />
+                    android:background="@color/colorLightGray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -175,7 +175,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/item_seperator_margin"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:background="@color/colorPrimaryDark" />
+                    android:background="@color/colorLightGray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -202,7 +202,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/item_seperator_margin"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:background="@color/colorPrimaryDark" />
+                    android:background="@color/colorLightGray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

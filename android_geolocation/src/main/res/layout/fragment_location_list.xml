@@ -55,7 +55,7 @@
             android:backgroundTint="@color/secondaryColor"
             android:backgroundTintMode="src_atop"
             android:onClick="@{() -> vm.fabClick()}"
-            android:src="@drawable/ic_add_location_white"
+            android:src="@drawable/ic_my_location_white"
             app:fabSize="auto"
             app:tint="@color/primaryTextColor" />
 

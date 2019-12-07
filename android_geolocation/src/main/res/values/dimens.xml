@@ -8,6 +8,7 @@
     <dimen name="list_bottom_margin">24dp</dimen>
     <dimen name="card_corner_radius">4dp</dimen>
     <dimen name="card_elevation">4dp</dimen>
+    <dimen name="list_label_margin">12dp</dimen>
 
     <!-- Margin between the checked icon and the card -->
     <dimen xmlns:tools="http://schemas.android.com/tools"

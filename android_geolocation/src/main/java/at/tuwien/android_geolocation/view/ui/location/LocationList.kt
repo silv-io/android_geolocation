@@ -201,7 +201,7 @@ class LocationList : Fragment() {
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val idView: TextView = view.id_text
-            val contentView: TextView = view.content
+            val contentView: TextView = view.label_gpsCoords
             val contentViewHeader: TextView = view.content_header
         }
     }
