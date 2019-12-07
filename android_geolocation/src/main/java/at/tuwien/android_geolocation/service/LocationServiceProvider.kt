@@ -19,7 +19,7 @@ object LocationServiceProvider {
 
     private fun createRepository(context: Context): LocationRepository {
         val db = db ?: createDb(context)
-        //TODO: implement MozillaLocationService
+        //TODO: implement MozillaLocationService; maybe restructure approach
         return LocationRepository(db.locationDao(), MozillaLocationService())
     }
 

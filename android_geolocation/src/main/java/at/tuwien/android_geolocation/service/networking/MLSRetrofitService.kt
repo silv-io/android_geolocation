@@ -10,7 +10,7 @@ class MLSRetrofitService {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    fun <S> cteateService(serviceClass: Class<S>): S {
+    fun <S> createService(serviceClass: Class<S>): S {
         return retrofit.create(serviceClass)
     }
 }
