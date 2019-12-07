@@ -25,6 +25,9 @@ class LocationDetailsViewModel(
     private val _deleteLocationEvent = MutableLiveData<Event<Unit>>()
     val deleteLocationEvent: LiveData<Event<Unit>> = _deleteLocationEvent
 
+    private val _backEvent = MutableLiveData<Event<Any>>()
+    val backEvent: LiveData<Event<Any>> = _backEvent
+
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
@@ -33,11 +36,15 @@ class LocationDetailsViewModel(
         (result as? Result.Success)?.let { _location.value = it.data }
     }
 
+    fun backClick() = viewModelScope.launch {
+        _backEvent.value = Event(Any())
+    }
+
     fun deleteLocation(locationId: Long) = viewModelScope.launch {
         _deleteLocationEvent.value = Event(locationRepository.deleteLocation(locationId))
     }
 
-    fun sendLocation(locationId: Long) = viewModelScope.launch {
+    fun sendLocation() = viewModelScope.launch {
         val context = getApplication<Application>().applicationContext
 
         val uri = locationRepository.createTemporaryLocationPlaintextFile(context, _location.value!!.toPlaintextString())

@@ -33,18 +33,10 @@ class MozillaLocationService : Service() {
     }
 
     fun getMLSInfo(): MLSRequest? {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_WIFI_STATE
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Permission is not granted
-            Log.d(
-                "PERMISSION_DENIED",
-                "CHECK APP PERMISSIONS"
-            )
-
+            return null
         } else {
             val telephonyManager: TelephonyManager =
                 this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -61,30 +53,21 @@ class MozillaLocationService : Service() {
                 homeMobileCountryCode = null, homeMobileNetworkCode = null
             )
         }
-
-        return null
     }
 
     fun getGPSInfo(): Position? {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_WIFI_STATE
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Permission is not granted
-            Log.d(
-                "PERMISSION_DENIED",
-                "CHECK APP PERMISSIONS"
-            )
             return null
+        } else {
+            val locationManager: LocationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            if (location != null) {
+                return Position(location.longitude, location.latitude, location.accuracy.toDouble())
+            }
         }
-        val locationManager: LocationManager =
-            this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        if (location != null) {
-            return Position(location.longitude, location.latitude, location.accuracy.toDouble())
-        }
+
         return null
     }
 

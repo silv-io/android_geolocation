@@ -1,33 +1,44 @@
 package at.tuwien.android_geolocation.view.ui.location
 
-import android.content.ComponentName
+import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.IBinder
-import at.tuwien.android_geolocation.service.MozillaLocationService
+import android.telephony.TelephonyManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.tuwien.geolocation_android.R
 
 class LocationActivity : AppCompatActivity() {
 
-    private var locationService: MozillaLocationService?= null
+    companion object {
+        const val REQUEST_ACCESS_LOCATION = 100
+        const val REQUEST_ACCESS_WIFI_STATE = 101
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location)
 
-        val connection: ServiceConnection
-        connection = object : ServiceConnection {
-            override fun onServiceDisconnected(p0: ComponentName?) {
-                locationService=null
-            }
-            override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
-                locationService=(service as MozillaLocationService.MozillaLocationBinder).getService()
-            }
+        applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+        if (
+            /* checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || */checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this@LocationActivity,
+                arrayOf(/* Manifest.permission.ACCESS_COARSE_LOCATION, */Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_ACCESS_LOCATION
+            )
         }
-        locationService?.bindService(Intent(this, MozillaLocationService::class.java), connection, Context.BIND_AUTO_CREATE)
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this@LocationActivity,
+                arrayOf(Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_WIFI_STATE),
+                REQUEST_ACCESS_WIFI_STATE
+            )
+        }
     }
 
 }

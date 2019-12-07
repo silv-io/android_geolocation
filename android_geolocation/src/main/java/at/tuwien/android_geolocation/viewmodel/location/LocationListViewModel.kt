@@ -1,6 +1,8 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
+import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +13,7 @@ import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
 import at.tuwien.android_geolocation.util.Result
+import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.launch
 
 
@@ -50,14 +53,20 @@ class LocationListViewModel(
         val mlsInfo = mozillaLocationService?.getMLSInfo()
         val gpsInfo = mozillaLocationService?.getGPSInfo()
 
-        if (mlsInfo != null) {
+        if (mlsInfo != null && gpsInfo != null) {
             val result = locationRepository.newLocation(mlsInfo, gpsInfo)
             (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+        } else {
+            showSnackbarMessage(R.string.snackbar_permission_error)
         }
     }
 
     //TODO: use somewhere
     fun secure(passphrase: ByteArray) {
         getApplication<GeolocationApplication>().activateSecureMode(passphrase)
+    }
+
+    private fun showSnackbarMessage(@StringRes message: Int) {
+        _snackbarText.value = Event(message)
     }
 }

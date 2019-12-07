@@ -41,6 +41,10 @@ class LocationDetails : Fragment() {
         viewModel.deleteLocationEvent.observe(this, EventObserver {
             findNavController().navigate(R.id.action_locationDetails_pop)
         })
+
+        viewModel.backEvent.observe(this, EventObserver {
+            findNavController().navigate(R.id.action_locationDetails_pop)
+        })
     }
 
     override fun onCreateView(
