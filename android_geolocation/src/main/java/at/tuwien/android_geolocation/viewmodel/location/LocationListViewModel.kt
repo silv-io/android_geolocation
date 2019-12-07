@@ -1,11 +1,13 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.tuwien.android_geolocation.GeolocationApplication
+import at.tuwien.android_geolocation.service.MozillaLocationService
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
@@ -26,6 +28,11 @@ class LocationListViewModel(
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
+    private var mozillaLocationService: MozillaLocationService? = null
+
+    fun setMozillaLocationService(mozillaLocationService: MozillaLocationService?) {
+        this.mozillaLocationService = mozillaLocationService
+    }
 
     fun loadLocations() {
         viewModelScope.launch {
@@ -41,8 +48,12 @@ class LocationListViewModel(
     }
 
     fun fabClick() = viewModelScope.launch {
-        val result = locationRepository.newLocation()
-        (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+        val mlsInfo = mozillaLocationService?.getMLSInfo()
+
+        if (mlsInfo != null) {
+            val result = locationRepository.newLocation(mlsInfo)
+            (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+        }
     }
 
     //TODO: use somewhere

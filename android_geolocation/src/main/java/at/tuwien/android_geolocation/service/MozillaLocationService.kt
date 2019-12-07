@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation.service
 
 import android.Manifest
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,9 +14,10 @@ import android.util.Log
 import androidx.core.app.JobIntentService
 import androidx.core.content.ContextCompat
 import at.tuwien.android_geolocation.service.mls.CellTowerInfo
+import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
 
-class MozillaLocationService : JobIntentService() {
+class MozillaLocationService : Service() {
 
     private val mozillaLocationBinder = MozillaLocationBinder()
 
@@ -29,11 +31,7 @@ class MozillaLocationService : JobIntentService() {
         return mozillaLocationBinder
     }
 
-    override fun onHandleWork(intent: Intent) {
-        getMLSInfo()
-    }
-
-    fun getMLSInfo() {
+    fun getMLSInfo() : MLSRequest? {
            if (ContextCompat.checkSelfPermission(this , Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
             this,
@@ -48,15 +46,21 @@ class MozillaLocationService : JobIntentService() {
 
         } else {
             val telephonyManager: TelephonyManager =
-                this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
             val wifiManager: WifiManager = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
             val cellTowers = getTowerInfo(telephonyManager.allCellInfo)
             val wifiAccessPoints = getWifiAccessPointInfo(wifiManager.scanResults)
 
-               //do something with the information
+            return MLSRequest(
+                cellTowers = cellTowers, wifiAccessPoints = wifiAccessPoints,
+                considerIp = null, carrier = null,
+                homeMobileCountryCode = null, homeMobileNetworkCode = null
+            )
         }
+
+        return null
     }
 
     private fun getTowerInfo(cellinfo: List<CellInfo>): MutableList<CellTowerInfo> {

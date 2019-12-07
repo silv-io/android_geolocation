@@ -1,6 +1,11 @@
 package at.tuwien.android_geolocation.view.ui.location
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +17,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import at.tuwien.android_geolocation.service.DummyContent
+import at.tuwien.android_geolocation.service.MozillaLocationService
 import at.tuwien.android_geolocation.util.EventObserver
 import at.tuwien.android_geolocation.util.getViewModelFactory
 import at.tuwien.android_geolocation.util.setupSnackbar
@@ -31,12 +37,19 @@ class LocationList : Fragment() {
     private val viewModel by viewModels<LocationListViewModel> { getViewModelFactory() }
 
     private lateinit var viewDataBinding: FragmentLocationListBinding
-
     private lateinit var listAdapter: LocationListAdapter
+
+    private lateinit var mozillaLocationService: MozillaLocationService
+    private var serviceIsBound: Boolean = false
 
     @Volatile
     private var numChecked: Int = 0
     private lateinit var fab: FloatingActionButton
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        startMozillaLocationService()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +72,6 @@ class LocationList : Fragment() {
         viewModel.loadLocations()
     }
 
-
     private fun setUpNavigation() {
         viewModel.openLocationEvent.observe(this, EventObserver {
             val action = LocationListDirections.actionLocationListToLocationDetails(it)
@@ -78,6 +90,43 @@ class LocationList : Fragment() {
                 "location_list",
                 "viewModel not initialized when setting up adapter"
             )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startMozillaLocationService()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (serviceIsBound) {
+            this.context?.unbindService(serviceConnection)
+            serviceIsBound = false
+        }
+    }
+
+    private fun startMozillaLocationService() {
+        val serviceIntent = Intent(this.context, MozillaLocationService::class.java)
+        this.context?.startService(serviceIntent)
+
+        val serviceBindIntent = Intent(this.context, MozillaLocationService::class.java)
+        this.context?.bindService(serviceBindIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private val serviceConnection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder: MozillaLocationService.MozillaLocationBinder = service as MozillaLocationService.MozillaLocationBinder
+            mozillaLocationService = binder.getService()
+            serviceIsBound = true
+
+            viewModel.setMozillaLocationService(mozillaLocationService)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            viewModel.setMozillaLocationService(null)
+
+            serviceIsBound = false
         }
     }
 

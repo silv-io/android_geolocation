@@ -55,14 +55,21 @@ class LocationRepository(
         }
     }
 
-    suspend fun newLocation(): Result<Long> = withContext(ioDispatcher) {
+    suspend fun newLocation(mlsRequest: MLSRequest): Result<Long> = withContext(ioDispatcher) {
+        Log.println(Log.ERROR, "MLS DEBUG", "entry newLoation")
+
+        val mlsPosition = getMLSPosition(mlsRequest) ?: return@withContext Result.Error(Exception("MLS query failed"))
+
+        Log.println(Log.ERROR, "MLS DEBUG", "after getting location")
+
         val location = Location(
             0L,
-            mls = Position(1.2, 2.3, 4.5), //TODO(call getMLSPosition)
-            gps = Position(6.7, 8.9, 0.1),
+            mls = mlsPosition,
+            gps = Position(0.0, 0.0,.0),
             captureTime = DateTime.now(),
             params = HashMap<String, String>()
         )
+
         val locationId = locationDao.insertLocation(location)
         Log.println(Log.INFO,"location_repository", "got locationID: $locationId")
         return@withContext Result.Success(locationId)
@@ -88,27 +95,18 @@ class LocationRepository(
         return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
     }
 
-    fun getMLSPosition(mlsRequest: MLSRequest): Position? {
-        var mlsResponse: MLSResponse? = null
+    private fun getMLSPosition(mlsRequest: MLSRequest): Position? {
+        val mlsResponse: MLSResponse?
 
-        mlsAPI.getMLSLocation(mlsRequest)?.enqueue(object : Callback<MLSResponse?> {
-            override fun onFailure(call: Call<MLSResponse?>, t: Throwable) {
-                Log.println(Log.ERROR, "MLS Location Service Error", "Could not get location from location service")
-                Log.println(Log.ERROR, "MLS Location Service Error", t.localizedMessage!!)
-            }
+        val response: Response<MLSResponse?>? = mlsAPI.getMLSLocation(mlsRequest)?.execute()
 
-            override fun onResponse(call: Call<MLSResponse?>, response: Response<MLSResponse?>) {
-                if (response.isSuccessful){
-                    mlsResponse = response.body()
-                }
-            }
-        })
-
-        if (mlsResponse != null) {
+        return if (response != null && response.isSuccessful){
+            mlsResponse = response.body()
             val mlsResponseCopy = mlsResponse!!.copy()
-            return validateAndConvertMLSResponse(mlsResponseCopy)
+            validateAndConvertMLSResponse(mlsResponseCopy)
+        } else {
+            null
         }
-        return null
     }
 
     private fun validateAndConvertMLSResponse(mlsResponse: MLSResponse): Position {
