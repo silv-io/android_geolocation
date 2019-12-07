@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
+import android.text.Editable
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -54,7 +55,7 @@ class LocationListViewModel(
     }
 
     //TODO: use somewhere
-    fun secure(passphrase: ByteArray) {
+    fun secure(passphrase: Editable) {
         getApplication<GeolocationApplication>().activateSecureMode(passphrase)
     }
 }

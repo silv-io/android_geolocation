@@ -3,26 +3,19 @@ package at.tuwien.android_geolocation.view.ui.location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.TextView
+import android.widget.Button
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import at.tuwien.android_geolocation.service.DummyContent
 import at.tuwien.android_geolocation.util.EventObserver
 import at.tuwien.android_geolocation.util.getViewModelFactory
 import at.tuwien.android_geolocation.util.setupSnackbar
 import at.tuwien.android_geolocation.view.adapter.LocationListAdapter
 import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tuwien.geolocation_android.R
 import com.tuwien.geolocation_android.databinding.FragmentLocationListBinding
-import kotlinx.android.synthetic.main.item_list_content.view.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 class LocationList : Fragment() {
 
@@ -32,9 +25,6 @@ class LocationList : Fragment() {
 
     private lateinit var listAdapter: LocationListAdapter
 
-    @Volatile
-    private var numChecked: Int = 0
-    private lateinit var fab: FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +33,12 @@ class LocationList : Fragment() {
         viewDataBinding = FragmentLocationListBinding.inflate(inflater, container, false).apply {
             vm = viewModel
         }
+
+        // Apparently this cannot be done with data-binding, because data-binding cannot give "Editable" which is needed by Saferoom
+        val pwd = viewDataBinding.root.findViewById<EditText>(R.id.txt_password)
+        val btn = viewDataBinding.root.findViewById<Button>(R.id.btn_security)
+
+        btn.setOnClickListener { viewModel.secure(pwd.text) }
 
         setHasOptionsMenu(true)
 
@@ -95,79 +91,4 @@ class LocationList : Fragment() {
         }
     }
 
-    inner class SimpleItemRecyclerViewAdapter(
-        private val fragmentView: View,
-        private val values: List<DummyContent.DummyItem>
-    ) : RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-
-        private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
-            if (numChecked > 0) {
-                toggleCard(v as MaterialCardView)
-            } else {
-                //TODO: check selected
-                val action = LocationListDirections.actionLocationListToLocationDetails(2)
-                fragmentView.findNavController()
-                    .navigate(action)
-            }
-        }
-
-        private val onLongClickListener: View.OnLongClickListener = View.OnLongClickListener { v ->
-            toggleCard(v as MaterialCardView)
-            true
-        }
-
-        private fun toggleCard(v: MaterialCardView) {
-            v.toggle()
-            if (v.isChecked) {
-                numChecked++
-            } else {
-                numChecked--
-            }
-
-            if (numChecked > 0) {
-                fab.setImageDrawable(
-                    resources.getDrawable(
-                        R.drawable.ic_delete_forever_white,
-                        context?.theme
-                    )
-                )
-            } else {
-                fab.setImageDrawable(
-                    resources.getDrawable(
-                        R.drawable.ic_add_white,
-                        context?.theme
-                    )
-                )
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_list_content, parent, false)
-            return ViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = values[position]
-            holder.idView.text = item.id
-            holder.contentView.text = item.content
-
-            val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMAN)
-            holder.contentViewHeader.text = formatter.format(Calendar.getInstance().time)
-
-            with(holder.itemView) {
-                tag = item
-                setOnClickListener(onClickListener)
-                setOnLongClickListener(onLongClickListener)
-            }
-        }
-
-        override fun getItemCount() = values.size
-
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val idView: TextView = view.id_text
-            val contentView: TextView = view.content
-            val contentViewHeader: TextView = view.content_header
-        }
-    }
 }

@@ -1,9 +1,10 @@
 package at.tuwien.android_geolocation.service
 
 import android.content.Context
+import android.text.Editable
+import android.util.Log
 import androidx.room.Room
 import at.tuwien.android_geolocation.service.repository.LocationRepository
-import com.commonsware.cwac.saferoom.SQLCipherUtils
 
 object LocationServiceProvider {
 
@@ -32,16 +33,18 @@ object LocationServiceProvider {
         return result
     }
 
-    fun encryptDb(context: Context, passphrase: ByteArray): Boolean {
-        return when (SQLCipherUtils.getDatabaseState(context.applicationContext, "Locations.db")) {
-            SQLCipherUtils.State.UNENCRYPTED -> {
-                db!!.close()
-                SQLCipherUtils.encrypt(context.applicationContext, "Locations.db", passphrase)
-                db!!.isOpen
-            }
-            else -> {
-                false
-            }
-        }
+    fun encryptDb(context: Context, passphrase: Editable): Boolean {
+//        return when (SQLCipherUtils.getDatabaseState(context.applicationContext, "Locations.db")) {
+//            SQLCipherUtils.State.UNENCRYPTED -> {
+//                db!!.close()
+//                SQLCipherUtils.encrypt(context.applicationContext, "Locations.db", passphrase)
+//                db!!.isOpen
+//            }
+//            else -> {
+//                false
+//            }
+//        }
+        Log.d("LocationServiceProvider", "called with $passphrase")
+        return false
     }
 }
