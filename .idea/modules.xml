@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android Geolocation.iml" filepath="$PROJECT_DIR$/Android Geolocation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Desktop-android_geolocation-Android Geolocation.iml" filepath="$PROJECT_DIR$/Desktop-android_geolocation-Android Geolocation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android_geolocation/Desktop-android_geolocation-android_geolocation.iml" filepath="$PROJECT_DIR$/android_geolocation/Desktop-android_geolocation-android_geolocation.iml" />
       <module fileurl="file://$PROJECT_DIR$/android_geolocation/android_geolocation.iml" filepath="$PROJECT_DIR$/android_geolocation/android_geolocation.iml" />
       <module fileurl="file://$PROJECT_DIR$/android_geolocation-Android Geolocation.iml" filepath="$PROJECT_DIR$/android_geolocation-Android Geolocation.iml" />
       <module fileurl="file://$PROJECT_DIR$/android_geolocation/android_geolocation-android_geolocation.iml" filepath="$PROJECT_DIR$/android_geolocation/android_geolocation-android_geolocation.iml" />
