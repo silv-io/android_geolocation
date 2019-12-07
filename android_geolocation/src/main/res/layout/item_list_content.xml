@@ -68,7 +68,8 @@
                     android:id="@+id/content"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{location.gps.diff(location.mls).toString()}"
+                    android:text="@{String.valueOf(location.gps.diff(location.mls))}"
+
                     android:textAppearance="?attr/textAppearanceListItemSecondary" />
             </LinearLayout>
 

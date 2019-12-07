@@ -18,8 +18,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
@@ -53,25 +51,25 @@ class LocationRepository(
         }
     }
 
-    suspend fun newLocation(mlsRequest: MLSRequest): Result<Long> = withContext(ioDispatcher) {
-        Log.println(Log.ERROR, "MLS DEBUG", "entry newLoation")
+    suspend fun newLocation(mlsRequest: MLSRequest, gps: Position?): Result<Long> =
+        withContext(ioDispatcher) {
 
-        val mlsPosition = getMLSPosition(mlsRequest) ?: return@withContext Result.Error(Exception("MLS query failed"))
+            val mlsPosition = getMLSPosition(mlsRequest) ?: return@withContext Result.Error(
+                Exception("MLS query failed")
+            )
 
-        Log.println(Log.ERROR, "MLS DEBUG", "after getting location")
+            val location = Location(
+                0L,
+                mls = mlsPosition,
+                gps = gps ?: return@withContext Result.Error(Exception("GPS failed")),
+                captureTime = DateTime.now(),
+                params = HashMap<String, String>()
+            )
 
-        val location = Location(
-            0L,
-            mls = mlsPosition,
-            gps = Position(0.0, 0.0,.0),
-            captureTime = DateTime.now(),
-            params = HashMap<String, String>()
-        )
-
-        val locationId = locationDao.insertLocation(location)
-        Log.println(Log.INFO,"location_repository", "got locationID: $locationId")
-        return@withContext Result.Success(locationId)
-    }
+            val locationId = locationDao.insertLocation(location)
+            Log.println(Log.INFO, "location_repository", "got locationID: $locationId")
+            return@withContext Result.Success(locationId)
+        }
 
     suspend fun deleteAllLocations() = withContext(ioDispatcher) {
         locationDao.deleteLocations()
@@ -98,7 +96,7 @@ class LocationRepository(
 
         val response: Response<MLSResponse?>? = mlsAPI.getMLSLocation(mlsRequest)?.execute()
 
-        return if (response != null && response.isSuccessful){
+        return if (response != null && response.isSuccessful) {
             mlsResponse = response.body()
             val mlsResponseCopy = mlsResponse!!.copy()
             validateAndConvertMLSResponse(mlsResponseCopy)
@@ -109,8 +107,12 @@ class LocationRepository(
 
     private fun validateAndConvertMLSResponse(mlsResponse: MLSResponse): Position {
         if (mlsResponse.error != null) {
-            Log.println(Log.ERROR, "Error in MLS response", "MLS returned an error " + mlsResponse.error.code)
-            Log.println(Log.ERROR, "Error in MLS response",  mlsResponse.error.message!!)
+            Log.println(
+                Log.ERROR,
+                "Error in MLS response",
+                "MLS returned an error " + mlsResponse.error.code
+            )
+            Log.println(Log.ERROR, "Error in MLS response", mlsResponse.error.message!!)
         }
 
         return Position(

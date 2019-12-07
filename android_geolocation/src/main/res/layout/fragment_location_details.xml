@@ -122,7 +122,7 @@
 
                     <TextView
                         android:id="@+id/txt_diff_gps_mls"
-                        android:text="@{vm.location.gps.diff(vm.location.mls).toString()}"
+                        android:text="@{String.valueOf(vm.location.gps.diff(vm.location.mls))}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

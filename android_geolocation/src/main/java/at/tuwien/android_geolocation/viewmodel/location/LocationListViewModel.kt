@@ -1,7 +1,6 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,9 +48,10 @@ class LocationListViewModel(
 
     fun fabClick() = viewModelScope.launch {
         val mlsInfo = mozillaLocationService?.getMLSInfo()
+        val gpsInfo = mozillaLocationService?.getGPSInfo()
 
         if (mlsInfo != null) {
-            val result = locationRepository.newLocation(mlsInfo)
+            val result = locationRepository.newLocation(mlsInfo, gpsInfo)
             (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
         }
     }

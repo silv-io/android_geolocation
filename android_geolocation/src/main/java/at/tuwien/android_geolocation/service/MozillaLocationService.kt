@@ -5,23 +5,24 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.IBinder
 import android.telephony.*
 import android.util.Log
-import androidx.core.app.JobIntentService
 import androidx.core.content.ContextCompat
 import at.tuwien.android_geolocation.service.mls.CellTowerInfo
 import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
+import at.tuwien.android_geolocation.service.model.Position
 
 class MozillaLocationService : Service() {
 
     private val mozillaLocationBinder = MozillaLocationBinder()
 
-    inner class MozillaLocationBinder: Binder() {
+    inner class MozillaLocationBinder : Binder() {
         fun getService(): MozillaLocationService {
             return this@MozillaLocationService
         }
@@ -31,12 +32,12 @@ class MozillaLocationService : Service() {
         return mozillaLocationBinder
     }
 
-    fun getMLSInfo() : MLSRequest? {
-           if (ContextCompat.checkSelfPermission(this , Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_WIFI_STATE
-        ) != PackageManager.PERMISSION_GRANTED
+    fun getMLSInfo(): MLSRequest? {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_WIFI_STATE
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Permission is not granted
             Log.d(
@@ -46,9 +47,10 @@ class MozillaLocationService : Service() {
 
         } else {
             val telephonyManager: TelephonyManager =
-            this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
-            val wifiManager: WifiManager = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifiManager: WifiManager =
+                this.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
             val cellTowers = getTowerInfo(telephonyManager.allCellInfo)
             val wifiAccessPoints = getWifiAccessPointInfo(wifiManager.scanResults)
@@ -60,6 +62,29 @@ class MozillaLocationService : Service() {
             )
         }
 
+        return null
+    }
+
+    fun getGPSInfo(): Position? {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_WIFI_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permission is not granted
+            Log.d(
+                "PERMISSION_DENIED",
+                "CHECK APP PERMISSIONS"
+            )
+            return null
+        }
+        val locationManager: LocationManager =
+            this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        if (location != null) {
+            return Position(location.longitude, location.latitude, location.accuracy.toDouble())
+        }
         return null
     }
 
@@ -121,10 +146,11 @@ class MozillaLocationService : Service() {
         return celltowers
     }
 
-    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult>): MutableList<WifiAccessPointInfo>{
-        val wifiAccessPoints: MutableList<WifiAccessPointInfo> = mutableListOf<WifiAccessPointInfo>()
-        for (wifi_info_entry in wifiInfo){
-            if(!wifi_info_entry.SSID.contains("_nomap")) {
+    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult>): MutableList<WifiAccessPointInfo> {
+        val wifiAccessPoints: MutableList<WifiAccessPointInfo> =
+            mutableListOf<WifiAccessPointInfo>()
+        for (wifi_info_entry in wifiInfo) {
+            if (!wifi_info_entry.SSID.contains("_nomap")) {
                 val newWifiAccessPoint = WifiAccessPointInfo()
                 newWifiAccessPoint.macAddress = wifi_info_entry.BSSID
                 newWifiAccessPoint.age = wifi_info_entry.timestamp

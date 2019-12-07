@@ -4,7 +4,7 @@ import androidx.room.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
-import kotlin.math.abs
+import kotlin.math.*
 
 @Entity(tableName = "locations")
 @TypeConverters(Converters::class)
@@ -33,12 +33,25 @@ data class Position(
     val accuracy: Double
 ) {
 
-    fun diff(p: Position): Position {
-        return Position(
-            p.longitude - this.longitude,
-            p.latitude - this.latitude,
-            abs(p.accuracy - this.accuracy)
-        )
+    companion object {
+        const val earthRadiusInMeters: Double = 6_372_800.0
+    }
+
+    /**
+     * Haversine formula
+     * @return Distance in Meters
+     */
+    fun diff(that: Position): Double {
+        val latitudeDifference = Math.toRadians(that.latitude - this.latitude);
+        val longitudeDifference = Math.toRadians(that.longitude - this.longitude);
+        val thisLatitudeRadians = Math.toRadians(this.latitude);
+        val thatLatitudeRadians = Math.toRadians(that.latitude);
+
+        val a = sin(latitudeDifference / 2).pow(2.toDouble()) + sin(longitudeDifference / 2).pow(
+            2.toDouble()
+        ) * cos(thisLatitudeRadians) * cos(thatLatitudeRadians);
+        val c = 2 * asin(sqrt(a));
+        return earthRadiusInMeters * c;
     }
 
     override fun toString(): String {
