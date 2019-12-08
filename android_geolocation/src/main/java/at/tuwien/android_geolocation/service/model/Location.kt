@@ -5,6 +5,8 @@ import at.tuwien.android_geolocation.service.mls.MLSRequest
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import kotlin.math.*
 
 @Entity(tableName = "locations")
@@ -16,13 +18,21 @@ data class Location(
     @ColumnInfo(name = "captureTime") val captureTime: DateTime,
     @ColumnInfo(name = "params") val params: MLSRequest
 ) {
+    companion object {
+        val pattern: DateTimeFormatter = DateTimeFormat.forPattern("d.M.y H:m:s")
+    }
+
+    fun getFormattedTimestamp(): String {
+        return captureTime.toString(pattern)
+    }
+
     fun toPlaintextString(): String {
         val builder: StringBuilder = StringBuilder()
 
-        builder.append("Timestamp: " + this.captureTime + System.lineSeparator())
-        builder.append("MLS: " + this.mls + System.lineSeparator())
-        builder.append("GPS: " + this.gps + System.lineSeparator())
-        builder.append("MLS parameters: " + this.params)
+        builder.append("Timestamp: ${getFormattedTimestamp()}${System.lineSeparator()}")
+        builder.append("MLS:  ${this.mls}${System.lineSeparator()}")
+        builder.append("GPS:  \${this.gps}${System.lineSeparator()}")
+        builder.append("MLS parameters: ${this.params}")
 
         return builder.toString()
     }
@@ -56,7 +66,18 @@ data class Position(
     }
 
     override fun toString(): String {
-        return "long: ${this.longitude}; lat: ${this.latitude}"
+        return String.format("%s%c %s%c", degToCoordString(latitude), if (latitude>=0) 'N' else 'S', degToCoordString(longitude), if (longitude>=0) 'E' else 'W')
+    }
+
+    private fun degToCoordString(fullDeg: Double): String {
+        var conversionVar = fullDeg
+
+        val deg: Int = floor(conversionVar).toInt()
+        conversionVar = (conversionVar - deg) * 60
+        val arcmin: Int = floor(conversionVar).toInt()
+        val arcsec: Double = (conversionVar - arcmin) * 60
+
+        return String.format("%d°%d'%.2f''", deg, arcmin,arcsec)
     }
 }
 

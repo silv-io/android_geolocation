@@ -56,7 +56,7 @@
 
                     <TextView
                         android:id="@+id/txt_capture_time"
-                        android:text="@{vm.location.captureTime.toString()}"
+                        android:text="@{vm.location.getFormattedTimestamp()}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

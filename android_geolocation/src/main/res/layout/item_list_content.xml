@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/item_seperator_margin"
-                    android:text="@{location.captureTime.toString()}"
+                    android:text="@{location.getFormattedTimestamp()}"
                     android:textAppearance="?attr/textAppearanceListItem"
                     tools:layout_marginBottom="@dimen/item_seperator_margin" />
 
