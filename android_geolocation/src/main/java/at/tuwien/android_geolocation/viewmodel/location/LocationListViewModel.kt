@@ -37,11 +37,15 @@ class LocationListViewModel(
 
     fun loadLocations() {
         viewModelScope.launch {
-            val result = locationRepository.getLocations()
+            val result = getLocationsFromRepository()
             (result as? Result.Success)?.let {
                 _items.value = result.data
             }
         }
+    }
+
+    suspend fun getLocationsFromRepository(): Result<List<Location>>? {
+        return locationRepository.getLocations()
     }
 
     fun shortPressLocation(locationId: Long) {
