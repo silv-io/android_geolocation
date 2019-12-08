@@ -49,11 +49,6 @@ class AndroidGeolocationUITest : KoinTest {
         })
     }
 
-    @After
-    fun cleanUp() {
-        stopKoin()
-    }
-
     @Test
     fun createAndShowMeasurement() {
         coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
@@ -124,7 +119,7 @@ class AndroidGeolocationUITest : KoinTest {
 
         rule.launchActivity(null)
 
-        clickListItem(R.id.item_list, elementId.toInt())
+        clickListItem(R.id.item_list, AndroidGeolocationUITestData.locations.indexOfFirst { it.id == elementId })
 
         assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.getFormattedTimestamp())
         assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.toString())
@@ -149,7 +144,7 @@ class AndroidGeolocationUITest : KoinTest {
 
         rule.launchActivity(null)
 
-        clickListItem(R.id.item_list, elementId.toInt())
+        clickListItem(R.id.item_list, AndroidGeolocationUITestData.locations.indexOfFirst { it.id == elementId })
 
         assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.getFormattedTimestamp())
         assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.toString())
