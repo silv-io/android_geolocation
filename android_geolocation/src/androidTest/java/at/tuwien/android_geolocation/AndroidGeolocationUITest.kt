@@ -1,11 +1,5 @@
 package at.tuwien.android_geolocation
 
-import androidx.recyclerview.widget.RecyclerView
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import at.tuwien.android_geolocation.data.AndroidGeolocationUITestData
@@ -14,12 +8,13 @@ import at.tuwien.android_geolocation.util.Result
 import at.tuwien.android_geolocation.view.ui.location.LocationActivity
 import com.schibsted.spain.barista.assertion.BaristaListAssertions.assertListItemCount
 import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertContains
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertNotDisplayed
 import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
 import com.schibsted.spain.barista.interaction.BaristaListInteractions.clickListItem
 import com.schibsted.spain.barista.interaction.BaristaListInteractions.scrollListToPosition
 import com.tuwien.geolocation_android.R
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -33,11 +28,11 @@ import org.koin.test.KoinTest
 @RunWith(androidx.test.ext.junit.runners.AndroidJUnit4::class)
 @LargeTest
 class AndroidGeolocationUITest : KoinTest {
-    @get:Rule
+    @Rule
     @JvmField
     val rule = ActivityTestRule(LocationActivity::class.java, true, false)
 
-    @get:Rule
+    @Rule
     @JvmField
     val dataBindingIdlingResourceRule = DataBindingIdlingResourceRule(rule)
 
@@ -122,63 +117,53 @@ class AndroidGeolocationUITest : KoinTest {
 
     @Test
     fun openDetailMeasurement() {
-        val elementId = 24
+        val elementId: Long = 24
 
         coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
-        coEvery { mockLocationRepository.getLocation(any()) } returns Result.Success(AndroidGeolocationUITestData.locations[elementId])
+        coEvery { mockLocationRepository.getLocation(any()) } returns Result.Success(AndroidGeolocationUITestData.locations.find { it.id == elementId }!! )
 
         rule.launchActivity(null)
 
-        clickListItem(R.id.item_list, elementId)
+        clickListItem(R.id.item_list, elementId.toInt())
 
-        assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations[elementId].getFormattedTimestamp())
-        assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations[elementId].gps.toString())
-        assertContains(R.id.txt_mls_coordinates, AndroidGeolocationUITestData.locations[elementId].mls.toString())
-        assertContains(R.id.txt_diff_gps_mls, AndroidGeolocationUITestData.locations[elementId].gps.diff(AndroidGeolocationUITestData.locations[elementId].mls).toString())
-        assertContains(R.id.txt_gps_accuracy, AndroidGeolocationUITestData.locations[elementId].gps.accuracy.toString())
-        assertContains(R.id.txt_mls_accuracy, AndroidGeolocationUITestData.locations[elementId].mls.accuracy.toString())
-        assertContains(R.id.txt_mls_parameters, AndroidGeolocationUITestData.locations[elementId].params.toString())
+        assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.getFormattedTimestamp())
+        assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.toString())
+        assertContains(R.id.txt_mls_coordinates, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.mls.toString())
+        assertContains(R.id.txt_diff_gps_mls, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.diff(AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.mls).toString())
+        assertContains(R.id.txt_gps_accuracy, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.accuracy.toString())
+        assertContains(R.id.txt_mls_accuracy, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.mls.accuracy.toString())
+        assertContains(R.id.txt_mls_parameters, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.params.toString())
 
         coVerify(exactly = 1) { mockLocationRepository.getLocations() }
-        coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations[elementId].id) }
+        coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.id) }
     }
 
     @Test
-    fun deleteDetailMeasurementFromList() {
-        val elementId = 3
+    fun deleteDetailMeasurement() {
+        val elementId: Long = 3
+        val tempList = AndroidGeolocationUITestData.locations.toMutableList()
 
-        coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
-        coEvery { mockLocationRepository.deleteLocation(elementId.toLong()) }
-        coEvery { mockLocationRepository.getLocation(elementId.toLong()) } returns Result.Success(AndroidGeolocationUITestData.locations[elementId])
+        coEvery { mockLocationRepository.getLocations() } returns Result.Success(tempList)
+        coEvery { mockLocationRepository.deleteLocation(elementId) } answers { tempList.removeAll {it.id == elementId} }
+        coEvery { mockLocationRepository.getLocation(elementId) } returns Result.Success(tempList.find { it.id == elementId }!!)
 
         rule.launchActivity(null)
 
-        clickListItem(R.id.item_list, elementId)
+        clickListItem(R.id.item_list, elementId.toInt())
 
-        assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations[elementId].getFormattedTimestamp())
-        assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations[elementId].gps.toString())
-        assertContains(R.id.txt_mls_coordinates, AndroidGeolocationUITestData.locations[elementId].mls.toString())
-        assertContains(R.id.txt_diff_gps_mls, AndroidGeolocationUITestData.locations[elementId].gps.diff(AndroidGeolocationUITestData.locations[elementId].mls).toString())
-        assertContains(R.id.txt_gps_accuracy, AndroidGeolocationUITestData.locations[elementId].gps.accuracy.toString())
-        assertContains(R.id.txt_mls_accuracy, AndroidGeolocationUITestData.locations[elementId].mls.accuracy.toString())
-        assertContains(R.id.txt_mls_parameters, AndroidGeolocationUITestData.locations[elementId].params.toString())
+        assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.getFormattedTimestamp())
+        assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.toString())
+        assertContains(R.id.txt_mls_coordinates, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.mls.toString())
+        assertContains(R.id.txt_diff_gps_mls, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.diff(AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.mls).toString())
+        assertContains(R.id.txt_gps_accuracy, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.gps.accuracy.toString())
+        assertContains(R.id.txt_mls_accuracy, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.mls.accuracy.toString())
+        assertContains(R.id.txt_mls_parameters, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.params.toString())
 
         clickOn(R.id.fab_delete)
 
-        scrollListToPosition(R.id.item_list, elementId)
-
-        assertListItemCount(R.id.item_list, AndroidGeolocationUITestData.locations.size)
-
-        assertNotDisplayed(R.id.item_list, elementId.toString())
+        assertListItemCount(R.id.item_list, AndroidGeolocationUITestData.locations.size - 1)
 
         coVerify(exactly = 2) { mockLocationRepository.getLocations() }
-        coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations[elementId].id) }
-    }
-
-    @Test
-    fun deleteDetailMeasurementFromDetailView() {
-        onView(withId(R.id.item_list)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(hasDescendant(withText("25"))))
-        onView(withId(R.id.item_list)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(24, click()))
-        onView(withId(R.id.fab_delete)).perform(click())
+        coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.id) }
     }
 }
