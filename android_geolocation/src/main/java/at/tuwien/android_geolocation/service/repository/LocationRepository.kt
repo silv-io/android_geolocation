@@ -4,14 +4,12 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
-import at.tuwien.android_geolocation.service.MozillaLocationService
 import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.MLSResponse
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.MLSAPI
 import at.tuwien.android_geolocation.service.model.Position
-import at.tuwien.android_geolocation.service.networking.MLSRetrofitService
 import at.tuwien.android_geolocation.util.Result
 import com.tuwien.geolocation_android.BuildConfig
 import kotlinx.coroutines.CoroutineDispatcher
@@ -25,10 +23,8 @@ import java.io.OutputStreamWriter
 
 class LocationRepository(
     private val locationDao: LocationDao,
-    private val locationService: MozillaLocationService,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val mlsAPI: MLSAPI = MLSRetrofitService().createService(MLSAPI::class.java)
-
+    private val mlsAPI: MLSAPI,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend fun getLocations(): Result<List<Location>> = withContext(ioDispatcher) {
         return@withContext try {

@@ -1,20 +1,30 @@
 package at.tuwien.android_geolocation
 
 import android.app.Application
-import at.tuwien.android_geolocation.service.LocationServiceProvider
-import at.tuwien.android_geolocation.service.repository.LocationRepository
 import net.danlew.android.joda.JodaTimeAndroid
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 class GeolocationApplication : Application() {
-    val locationRepository: LocationRepository
-        get() = LocationServiceProvider.provideRepository(this)
 
     override fun onCreate() {
         super.onCreate()
         JodaTimeAndroid.init(this)
+        startKoin {
+            androidLogger(Level.DEBUG)
+            androidContext(this@GeolocationApplication)
+            modules(
+                listOf(
+                    repositoryModule,
+                    viewModelModule,
+                    databaseModule,
+                    retrofitModule,
+                    apiModule
+                )
+            )
+        }
     }
 
-    fun activateSecureMode(passphrase: ByteArray): Boolean{
-        return LocationServiceProvider.encryptDb(this, passphrase)
-    }
 }

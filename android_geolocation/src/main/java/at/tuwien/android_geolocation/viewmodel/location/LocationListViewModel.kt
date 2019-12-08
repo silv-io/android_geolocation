@@ -7,7 +7,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import at.tuwien.android_geolocation.GeolocationApplication
 import at.tuwien.android_geolocation.service.MozillaLocationService
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
@@ -62,10 +61,6 @@ class LocationListViewModel(
         }
     }
 
-    //TODO: use somewhere
-    fun secure(passphrase: ByteArray) {
-        getApplication<GeolocationApplication>().activateSecureMode(passphrase)
-    }
 
     private fun showSnackbarMessage(@StringRes message: Int) {
         _snackbarText.value = Event(message)
