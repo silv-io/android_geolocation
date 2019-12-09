@@ -45,9 +45,13 @@ class LocationRepository(
 
     suspend fun getLocation(locationId: Long): Result<Location> = withContext(ioDispatcher) {
         try {
-            val task = locationDao.getLocationById(locationId)
-            if (task != null) {
-                return@withContext Result.Success(task)
+            val location = if (encryptedDatabase != null) {
+                encryptedDatabase!!.locationDao().getLocationById(locationId)
+            } else {
+                locationDao.getLocationById(locationId)
+            }
+            if (location != null) {
+                return@withContext Result.Success(location)
             } else {
                 return@withContext Result.Error(Exception("Task not found!"))
             }
