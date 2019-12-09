@@ -13,6 +13,7 @@ import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import android.os.SystemClock
 import android.telephony.*
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -23,14 +24,13 @@ import at.tuwien.android_geolocation.service.model.Position
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.math.pow
 
 class MozillaLocationService : Service() {
 
     private val mozillaLocationBinder = MozillaLocationBinder()
 
     companion object const {
-        private val oneMinuteInNanos = 6 * 10.0.pow(6)
+        private const val oneMinuteInNanos = 6 * 10e6
     }
 
     inner class MozillaLocationBinder : Binder() {
@@ -84,7 +84,10 @@ class MozillaLocationService : Service() {
             val locationManager: LocationManager =
                 this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val location =
-                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.takeUnless {
+                    // age is greater than one minute
+                    (SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos) > oneMinuteInNanos
+                }
                     ?: suspendCancellableCoroutine<Location?> { continuation ->
                         locationManager.requestSingleUpdate(
                             LocationManager.GPS_PROVIDER,
@@ -126,84 +129,84 @@ class MozillaLocationService : Service() {
 
     }
 
-    private fun getTowerInfo(cellinfo: List<CellInfo>): MutableList<CellTowerInfo> {
-        val celltowers: MutableList<CellTowerInfo> = mutableListOf<CellTowerInfo>()
-        for (cell_info_entry in cellinfo) {
-            val newTower = CellTowerInfo()
+    private fun getTowerInfo(cellinfo: List<CellInfo>): List<CellTowerInfo> {
+        return cellinfo.map {
+            CellTowerInfo().apply {
+                radioType = when (it) {
+                    is CellInfoWcdma -> "wcdma"
+                    is CellInfoLte -> "lte"
+                    is CellInfoGsm -> "gsm"
+                    else -> null
+                }
+                mobileCountryCode = when (it) {
+                    is CellInfoWcdma -> it.cellIdentity.mcc
+                    is CellInfoLte -> it.cellIdentity.mcc
+                    is CellInfoGsm -> it.cellIdentity.mcc
+                    else -> null
+                }
+                mobileNetworkCode = when (it) {
+                    is CellInfoWcdma -> it.cellIdentity.mnc
+                    is CellInfoLte -> it.cellIdentity.mnc
+                    is CellInfoGsm -> it.cellIdentity.mnc
+                    else -> null
+                }
+                locationAreaCode = when (it) {
+                    is CellInfoWcdma -> it.cellIdentity.lac
+                    is CellInfoLte -> it.cellIdentity.tac
+                    is CellInfoGsm -> it.cellIdentity.lac
+                    else -> null
+                }
+                cellId = when (it) {
+                    is CellInfoWcdma -> it.cellIdentity.cid
+                    is CellInfoLte -> it.cellIdentity.ci
+                    is CellInfoGsm -> it.cellIdentity.cid
+                    else -> null
+                }
 
-            newTower.radioType = when (cell_info_entry) {
-                is CellInfoWcdma -> "wcdma"
-                is CellInfoLte -> "lte"
-                is CellInfoGsm -> "gsm"
-                else -> null
+                age = when (it) {
+                    is CellInfoWcdma -> System.nanoTime() / 1_000_000 - it.timeStamp / 1_000_000
+                    is CellInfoLte -> System.nanoTime() / 1_000_000 - it.timeStamp / 1_000_000
+                    is CellInfoGsm -> System.nanoTime() / 1_000_000 - it.timeStamp / 1_000_000
+                    else -> null
+                }
+                //Cell Tower age cannot be read by using SDK
+                //Cell Tower age out of scope
+
+                // GSM has no psc
+                psc = when (it) {
+                    is CellInfoWcdma -> it.cellIdentity.psc
+                    is CellInfoLte -> it.cellIdentity.pci
+                    else -> null
+                }
+                signalStrength = when (it) {
+                    is CellInfoWcdma -> it.cellSignalStrength.asuLevel
+                    is CellInfoLte -> it.cellSignalStrength.asuLevel
+                    is CellInfoGsm -> it.cellSignalStrength.asuLevel
+                    else -> null
+                }
+                timingAdvance = when (it) {
+                    is CellInfoLte -> it.cellSignalStrength.timingAdvance
+                    else -> null
+                }
             }
-            newTower.mobileCountryCode = when (cell_info_entry) {
-                is CellInfoWcdma -> cell_info_entry.cellIdentity.mcc
-                is CellInfoLte -> cell_info_entry.cellIdentity.mcc
-                is CellInfoGsm -> cell_info_entry.cellIdentity.mcc
-                else -> null
-            }
-            newTower.mobileNetworkCode = when (cell_info_entry) {
-                is CellInfoWcdma -> cell_info_entry.cellIdentity.mnc
-                is CellInfoLte -> cell_info_entry.cellIdentity.mnc
-                is CellInfoGsm -> cell_info_entry.cellIdentity.mnc
-                else -> null
-            }
-            newTower.locationAreaCode = when (cell_info_entry) {
-                is CellInfoWcdma -> cell_info_entry.cellIdentity.lac
-                is CellInfoLte -> cell_info_entry.cellIdentity.tac
-                is CellInfoGsm -> cell_info_entry.cellIdentity.lac
-                else -> null
-            }
-            newTower.cellId = when (cell_info_entry) {
-                is CellInfoWcdma -> cell_info_entry.cellIdentity.cid
-                is CellInfoLte -> cell_info_entry.cellIdentity.ci
-                is CellInfoGsm -> cell_info_entry.cellIdentity.cid
-                else -> null
-            }
-            //Cell Tower age cannot be read by using SDK
-            //Cell Tower age out of scope
-            newTower.psc = when (cell_info_entry) {
-                is CellInfoWcdma -> cell_info_entry.cellIdentity.psc
-                is CellInfoLte -> cell_info_entry.cellIdentity.pci
-                is CellInfoGsm -> cell_info_entry.cellIdentity.psc
-                else -> null
-            }
-            newTower.signalStrength = when (cell_info_entry) {
-                is CellInfoWcdma -> cell_info_entry.cellSignalStrength.asuLevel
-                is CellInfoLte -> cell_info_entry.cellSignalStrength.asuLevel
-                is CellInfoGsm -> cell_info_entry.cellSignalStrength.asuLevel
-                else -> null
-            }
-            newTower.timingAdvance = when (cell_info_entry) {
-                is CellInfoLte -> cell_info_entry.cellSignalStrength.timingAdvance
-                else -> null
-            }
-            celltowers.add(newTower)
         }
-        return celltowers
     }
 
-    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult>): MutableList<WifiAccessPointInfo> {
-        val wifiAccessPoints: MutableList<WifiAccessPointInfo> =
-            mutableListOf<WifiAccessPointInfo>()
-        for (wifi_info_entry in wifiInfo) {
-            if (!wifi_info_entry.SSID.contains("_nomap")) {
-                val newWifiAccessPoint = WifiAccessPointInfo()
-                newWifiAccessPoint.macAddress = wifi_info_entry.BSSID
-                newWifiAccessPoint.age = wifi_info_entry.timestamp
-                newWifiAccessPoint.channel = wifi_info_entry.channelWidth
-                newWifiAccessPoint.frequency = wifi_info_entry.frequency
-                newWifiAccessPoint.signalStrength = wifi_info_entry.level
+    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult>): List<WifiAccessPointInfo> {
+        return wifiInfo.map {
+            WifiAccessPointInfo().apply {
+                macAddress = it.BSSID
+                age = SystemClock.elapsedRealtimeNanos() / 1_000_000 - it.timestamp / 1_000
+                channel = it.channelWidth
+                frequency = it.frequency
+                signalStrength = it.level
                 // Noise Level ist not available when using SDK
                 // Detection of noise level would require low-level NDK operations
                 // Noise Level out of scope
                 // newWifiAccessPoint.signalToNoiseRatio
-                newWifiAccessPoint.ssid = wifi_info_entry.SSID
-                wifiAccessPoints.add(newWifiAccessPoint)
+                ssid = it.SSID
             }
         }
-        return wifiAccessPoints
     }
 
 }
