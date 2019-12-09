@@ -30,7 +30,7 @@ class MozillaLocationService : Service() {
     private val mozillaLocationBinder = MozillaLocationBinder()
 
     companion object const {
-        private const val oneMinuteInNanos = 6 * 10e6
+        private const val oneMinuteInNanos = 6 * 10e9
     }
 
     inner class MozillaLocationBinder : Binder() {
@@ -83,6 +83,10 @@ class MozillaLocationService : Service() {
         } else {
             val locationManager: LocationManager =
                 this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Log.d("MozillaLocationService", "GPS is not enabled")
+                return null
+            }
             val location =
                 locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.takeUnless {
                     // age is greater than one minute
