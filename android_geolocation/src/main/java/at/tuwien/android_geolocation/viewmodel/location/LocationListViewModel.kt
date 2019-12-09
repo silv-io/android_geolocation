@@ -58,7 +58,7 @@ class LocationListViewModel(
         Log.d("LocationListViewModel", "gps info is $gpsInfo, mlsinfo is $mlsInfo")
 
         if (mlsInfo != null && gpsInfo != null) {
-            val result = locationRepository.newLocation(mlsInfo, gpsInfo)
+            val result = locationRepository.newLocation(mlsInfo, gpsInfo, getApplication<Application>().applicationContext)
             (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
         } else {
             showSnackbarMessage(R.string.snackbar_permission_error)

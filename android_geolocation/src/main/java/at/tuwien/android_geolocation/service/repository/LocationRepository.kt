@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.room.Room
+import at.tuwien.android_geolocation.service.LocationDb
 import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.MLSResponse
 import at.tuwien.android_geolocation.service.model.Location
@@ -11,6 +13,7 @@ import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.MLSAPI
 import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.util.Result
+import com.commonsware.cwac.saferoom.SafeHelperFactory
 import com.tuwien.geolocation_android.BuildConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +29,8 @@ class LocationRepository(
     private val mlsAPI: MLSAPI,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
+    private var encryptedDatabase: LocationDb? = null
+
     suspend fun getLocations(): Result<List<Location>> = withContext(ioDispatcher) {
         return@withContext try {
             Result.Success(locationDao.getLocations())
@@ -47,8 +52,12 @@ class LocationRepository(
         }
     }
 
-    suspend fun newLocation(mlsRequest: MLSRequest, gps: Position?): Result<Long> =
+    suspend fun newLocation(mlsRequest: MLSRequest, gps: Position?, context: Context): Result<Long> =   //TODO: REMOVE context
         withContext(ioDispatcher) {
+
+            if (encryptedDatabase == null) {
+                encryptedDatabase = buildDatabase(context, "Test".toByteArray())
+            }
 
             val mlsPosition = getMLSPosition(mlsRequest) ?: return@withContext Result.Error(
                 Exception("MLS query failed")
@@ -61,6 +70,8 @@ class LocationRepository(
                 captureTime = DateTime.now(),
                 params = mlsRequest
             )
+
+            encryptedDatabase?.locationDao()?.insertLocation(location)
 
             val locationId = locationDao.insertLocation(location)
             Log.println(Log.INFO, "location_repository", "got locationID: $locationId")
@@ -116,5 +127,13 @@ class LocationRepository(
             latitude = mlsResponse.location.lat!!,
             accuracy = mlsResponse.accuracy!!
         )
+    }
+
+    private fun buildDatabase(context: Context, secret: ByteArray): LocationDb {
+        val factory = SafeHelperFactory(secret)
+
+        return Room.databaseBuilder(context, LocationDb::class.java, "encryptedLocations.db")
+            .openHelperFactory(factory)
+            .build()
     }
 }
