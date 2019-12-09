@@ -33,7 +33,11 @@ class LocationRepository(
 
     suspend fun getLocations(): Result<List<Location>> = withContext(ioDispatcher) {
         return@withContext try {
-            Result.Success(locationDao.getLocations())
+            if (encryptedDatabase != null) {
+                Result.Success(encryptedDatabase!!.locationDao().getLocations())
+            } else {
+                Result.Success(locationDao.getLocations())
+            }
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -52,12 +56,8 @@ class LocationRepository(
         }
     }
 
-    suspend fun newLocation(mlsRequest: MLSRequest, gps: Position?, context: Context): Result<Long> =   //TODO: REMOVE context
+    suspend fun newLocation(mlsRequest: MLSRequest, gps: Position?): Result<Long> =
         withContext(ioDispatcher) {
-
-            if (encryptedDatabase == null) {
-                encryptedDatabase = buildDatabase(context, "Test".toByteArray())
-            }
 
             val mlsPosition = getMLSPosition(mlsRequest) ?: return@withContext Result.Error(
                 Exception("MLS query failed")
@@ -71,19 +71,30 @@ class LocationRepository(
                 params = mlsRequest
             )
 
-            encryptedDatabase?.locationDao()?.insertLocation(location)
+            val locationId = if (encryptedDatabase != null) {
+                encryptedDatabase!!.locationDao().insertLocation(location)
+            } else {
+                locationDao.insertLocation(location)
+            }
 
-            val locationId = locationDao.insertLocation(location)
             Log.println(Log.INFO, "location_repository", "got locationID: $locationId")
             return@withContext Result.Success(locationId)
         }
 
     suspend fun deleteAllLocations() = withContext(ioDispatcher) {
-        locationDao.deleteLocations()
+        if (encryptedDatabase != null) {
+            encryptedDatabase!!.locationDao().deleteLocations()
+        } else {
+            locationDao.deleteLocations()
+        }
     }
 
     suspend fun deleteLocation(locationId: Long) = withContext<Unit>(ioDispatcher) {
-        locationDao.deleteLocationById(locationId)
+        if (encryptedDatabase != null) {
+            encryptedDatabase!!.locationDao().deleteLocationById(locationId)
+        } else {
+            locationDao.deleteLocationById(locationId)
+        }
     }
 
     fun createTemporaryLocationPlaintextFile(context: Context, text: String): Uri {
@@ -129,7 +140,13 @@ class LocationRepository(
         )
     }
 
-    private fun buildDatabase(context: Context, secret: ByteArray): LocationDb {
+    fun enableEncrpytedDatabase(context: Context, secret: ByteArray) {
+        if (encryptedDatabase == null) {
+            encryptedDatabase = buildEncryptedDatabase(context, secret)
+        }
+    }
+
+    private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
         val factory = SafeHelperFactory(secret)
 
         return Room.databaseBuilder(context, LocationDb::class.java, "encryptedLocations.db")
