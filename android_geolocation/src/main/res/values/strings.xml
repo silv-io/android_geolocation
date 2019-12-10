@@ -17,4 +17,6 @@
     <string name="snackbar_sent_location">Sent Location!</string>
 
     <string name="snackbar_permission_error">Could not get location! Please restart app to check permissions</string>
+
+    <string name="database_name">Locations.db</string>
 </resources>

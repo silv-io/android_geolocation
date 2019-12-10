@@ -18,7 +18,6 @@ class LocationDetailsViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-
     private val _location = MutableLiveData<Location>()
     val location: LiveData<Location> = _location
 
@@ -47,7 +46,7 @@ class LocationDetailsViewModel(
     fun sendLocation() = viewModelScope.launch {
         val context = getApplication<Application>().applicationContext
 
-        val uri = locationRepository.createTemporaryLocationPlaintextFile(context, _location.value!!.toPlaintextString())
+        val uri = locationRepository.createTemporaryLocationPlaintextFile(_location.value!!.toPlaintextString())
 
         val emailIntent = Intent(Intent.ACTION_SEND)
         emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

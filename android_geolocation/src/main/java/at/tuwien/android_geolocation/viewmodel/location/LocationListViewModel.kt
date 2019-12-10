@@ -58,7 +58,7 @@ class LocationListViewModel(
         Log.d("LocationListViewModel", "gps info is $gpsInfo, mlsinfo is $mlsInfo")
 
         if (mlsInfo != null && gpsInfo != null) {
-            locationRepository.enableEncrpytedDatabase(getApplication<Application>().applicationContext, "Test".toByteArray())
+            locationRepository.openEncrpytedDatabase("Test".toByteArray())
 
             val result = locationRepository.newLocation(mlsInfo, gpsInfo)
             (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }

@@ -13,8 +13,10 @@ import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.MLSAPI
 import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.util.Result
+import com.commonsware.cwac.saferoom.SQLCipherUtils
 import com.commonsware.cwac.saferoom.SafeHelperFactory
 import com.tuwien.geolocation_android.BuildConfig
+import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,6 +29,7 @@ import java.io.OutputStreamWriter
 class LocationRepository(
     private val locationDao: LocationDao,
     private val mlsAPI: MLSAPI,
+    private val context: Context,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private var encryptedDatabase: LocationDb? = null
@@ -101,7 +104,7 @@ class LocationRepository(
         }
     }
 
-    fun createTemporaryLocationPlaintextFile(context: Context, text: String): Uri {
+    fun createTemporaryLocationPlaintextFile(text: String): Uri {
         val file = File(context.cacheDir, "location.txt")
 
         val fos = FileOutputStream(file)
@@ -144,7 +147,11 @@ class LocationRepository(
         )
     }
 
-    fun enableEncrpytedDatabase(context: Context, secret: ByteArray) {
+    fun isDatabaseEncrypted(): Boolean {
+        return SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.ENCRYPTED
+    }
+
+    fun openEncrpytedDatabase(secret: ByteArray) {
         if (encryptedDatabase == null) {
             encryptedDatabase = buildEncryptedDatabase(context, secret)
         }
@@ -153,7 +160,11 @@ class LocationRepository(
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
         val factory = SafeHelperFactory(secret)
 
-        return Room.databaseBuilder(context, LocationDb::class.java, "encryptedLocations.db")
+        if (SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.UNENCRYPTED) {
+            SQLCipherUtils.encrypt(context, context.getString(R.string.database_name), secret)
+        }
+
+        return Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.database_name))
             .openHelperFactory(factory)
             .build()
     }

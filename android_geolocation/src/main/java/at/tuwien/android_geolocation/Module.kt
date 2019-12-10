@@ -1,6 +1,7 @@
 package at.tuwien.android_geolocation
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import at.tuwien.android_geolocation.service.LocationDb
 import at.tuwien.android_geolocation.service.model.LocationDao
@@ -11,6 +12,7 @@ import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.tuwien.geolocation_android.R
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
@@ -25,18 +27,18 @@ val viewModelModule = module {
 }
 
 val repositoryModule = module {
-    fun provideUserRepository(dao: LocationDao, api: MLSAPI): LocationRepository {
-        return LocationRepository(dao, api)
+    fun provideUserRepository(dao: LocationDao, api: MLSAPI, application: Application): LocationRepository {
+        return LocationRepository(dao, api, application.applicationContext)
     }
 
-    single { provideUserRepository(get(), get()) }
+    single { provideUserRepository(get(), get(), get()) }
 }
 
 val databaseModule = module {
     fun provideDatabase(application: Application): LocationDb {
         return Room.databaseBuilder(
             application.applicationContext,
-            LocationDb::class.java, "Locations.db"
+            LocationDb::class.java, application.applicationContext.getString(R.string.database_name)
         )
             .allowMainThreadQueries()
             .build()
