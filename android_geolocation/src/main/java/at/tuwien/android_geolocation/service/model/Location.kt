@@ -2,6 +2,7 @@ package at.tuwien.android_geolocation.service.model
 
 import androidx.room.*
 import at.tuwien.android_geolocation.service.mls.MLSRequest
+import at.tuwien.android_geolocation.util.round
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
@@ -48,9 +49,12 @@ data class Position(
         const val earthRadiusInMeters: Double = 6_372_800.0
     }
 
+    val roundAccuracy: Double
+        get() = this.accuracy.round(2)
+
     /**
      * Haversine formula
-     * @return Distance in Meters
+     * @return Distance in Meters rounded to 2 decimals
      */
     fun diff(that: Position): Double {
         val latitudeDifference = Math.toRadians(that.latitude - this.latitude)
@@ -62,11 +66,17 @@ data class Position(
             2.toDouble()
         ) * cos(thisLatitudeRadians) * cos(thatLatitudeRadians)
         val c = 2 * asin(sqrt(a))
-        return earthRadiusInMeters * c
+        return (earthRadiusInMeters * c).round(2)
     }
 
     override fun toString(): String {
-        return String.format("%s%c %s%c", degToCoordString(latitude), if (latitude>=0) 'N' else 'S', degToCoordString(longitude), if (longitude>=0) 'E' else 'W')
+        return String.format(
+            "%s%c %s%c",
+            degToCoordString(latitude),
+            if (latitude >= 0) 'N' else 'S',
+            degToCoordString(longitude),
+            if (longitude >= 0) 'E' else 'W'
+        )
     }
 
     private fun degToCoordString(fullDeg: Double): String {
@@ -77,7 +87,7 @@ data class Position(
         val arcmin: Int = floor(conversionVar).toInt()
         val arcsec: Double = (conversionVar - arcmin) * 60
 
-        return String.format("%d°%d'%.2f''", deg, arcmin,arcsec)
+        return String.format("%d°%d'%.2f''", deg, arcmin, arcsec)
     }
 }
 
@@ -112,7 +122,7 @@ class Converters {
 
     @TypeConverter
     fun fromStringToMLSRequest(value: String): MLSRequest {
-        val mlsRequestType = object : TypeToken<MLSRequest>(){}.type
+        val mlsRequestType = object : TypeToken<MLSRequest>() {}.type
         return Gson().fromJson(value, mlsRequestType)
     }
 }

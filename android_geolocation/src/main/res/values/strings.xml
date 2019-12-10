@@ -9,14 +9,15 @@
     <string name="label_capture_time">Capture timestamp</string>
     <string name="label_gps_coordinates">GPS coordinates</string>
     <string name="label_mls_coordinates">MLS coordinates</string>
-    <string name="label_gps_accuracy">GPS accuracy (m)</string>
-    <string name="label_mls_accuracy">MLS accuracy (m)</string>
+    <string name="label_gps_accuracy">GPS accuracy</string>
+    <string name="label_mls_accuracy">MLS accuracy</string>
     <string name="label_mls_parameters">MLS parameters</string>
     <string name="label_diff_gps_mls">Difference MLS / GPS</string>
+    <string name="label_meters">\ meters</string>
     <string name="snackbar_deleted_location">Deleted Location!</string>
     <string name="snackbar_sent_location">Sent Location!</string>
 
-    <string name="snackbar_permission_error">Could not get location! Please restart app to check permissions</string>
+    <string name="snackbar_permission_error">Could not get location. Please restart app to check permissions!</string>
     <string name="snackbar_loading_location">A new location report is already loading. Please wait for completion!</string>
     <string name="menu_enable_security">Enable Security</string>
 </resources>
