@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="vm"
             type="at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel" />
@@ -26,7 +28,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:title="@string/app_name" />
+                app:title="@string/app_name">
+
+                <ProgressBar
+                    android:id="@+id/creationProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/colorLightGray"
+                    android:padding="8dp"
+                    android:visibility="@{vm.progressBar ? View.VISIBLE : View.GONE}" />
+
+            </androidx.appcompat.widget.Toolbar>
+
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -58,8 +73,6 @@
             android:src="@drawable/ic_my_location_white"
             app:fabSize="auto"
             app:tint="@color/primaryTextColor" />
-
-
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

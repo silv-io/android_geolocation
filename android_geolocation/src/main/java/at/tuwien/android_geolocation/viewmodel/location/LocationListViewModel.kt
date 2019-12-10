@@ -29,6 +29,9 @@ class LocationListViewModel(
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
+    private val _progressBar = MutableLiveData<Boolean>().apply { value = false }
+    val progressBar: LiveData<Boolean> = _progressBar
+
     private var mozillaLocationService: MozillaLocationService? = null
 
     fun setMozillaLocationService(mozillaLocationService: MozillaLocationService?) {
@@ -53,15 +56,22 @@ class LocationListViewModel(
     }
 
     fun fabClick() = viewModelScope.launch {
-        val mlsInfo = mozillaLocationService?.getMLSInfo()
-        val gpsInfo = mozillaLocationService?.getGPSInfo()
-        Log.d("LocationListViewModel", "gps info is $gpsInfo, mlsinfo is $mlsInfo")
-
-        if (mlsInfo != null && gpsInfo != null) {
-            val result = locationRepository.newLocation(mlsInfo, gpsInfo)
-            (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+        if (progressBar.value == true) {
+            showSnackbarMessage(R.string.snackbar_loading_location)
         } else {
-            showSnackbarMessage(R.string.snackbar_permission_error)
+            _progressBar.value = true
+            val mlsInfo = mozillaLocationService?.getMLSInfo()
+            val gpsInfo = mozillaLocationService?.getGPSInfo()
+            Log.d("LocationListViewModel", "gps info is $gpsInfo, mlsinfo is $mlsInfo")
+
+            if (mlsInfo != null && gpsInfo != null) {
+                val result = locationRepository.newLocation(mlsInfo, gpsInfo)
+                _progressBar.value = false
+                (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+            } else {
+                _progressBar.value = false
+                showSnackbarMessage(R.string.snackbar_permission_error)
+            }
         }
     }
 
