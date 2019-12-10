@@ -27,16 +27,13 @@ data class Location(
         return captureTime.toString(pattern)
     }
 
-    fun toPlaintextString(): String {
-        val builder: StringBuilder = StringBuilder()
+    val plaintextString: String
+        get() = """Timestamp: ${getFormattedTimestamp()}${System.lineSeparator()}
+            |MLS:  ${this.mls}${System.lineSeparator()}
+            |GPS:  ${this.gps}${System.lineSeparator()}
+            |MLS parameters: ${this.params}
+        """.trimMargin()
 
-        builder.append("Timestamp: ${getFormattedTimestamp()}${System.lineSeparator()}")
-        builder.append("MLS:  ${this.mls}${System.lineSeparator()}")
-        builder.append("GPS:  \${this.gps}${System.lineSeparator()}")
-        builder.append("MLS parameters: ${this.params}")
-
-        return builder.toString()
-    }
 }
 
 data class Position(

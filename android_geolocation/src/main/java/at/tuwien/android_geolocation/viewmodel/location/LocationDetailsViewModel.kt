@@ -47,7 +47,10 @@ class LocationDetailsViewModel(
     fun sendLocation() = viewModelScope.launch {
         val context = getApplication<Application>().applicationContext
 
-        val uri = locationRepository.createTemporaryLocationPlaintextFile(context, _location.value!!.toPlaintextString())
+        val uri = locationRepository.createTemporaryLocationPlaintextFile(
+            context,
+            _location.value!!.plaintextString
+        )
 
         val emailIntent = Intent(Intent.ACTION_SEND)
         emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
