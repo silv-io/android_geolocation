@@ -23,7 +23,6 @@ import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
 import at.tuwien.android_geolocation.service.model.Position
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 class MozillaLocationService : Service() {
 
@@ -57,17 +56,29 @@ class MozillaLocationService : Service() {
         } else {
             val telephonyManager: TelephonyManager =
                 this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-
             val wifiManager: WifiManager =
                 this.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            var cellTowers: List<CellTowerInfo?>? = null
+            var wifiAccessPoints: List<WifiAccessPointInfo?>? = null
 
-            val cellTowers = getTowerInfo(telephonyManager.allCellInfo)
-            val wifiAccessPoints = getWifiAccessPointInfo(wifiManager.scanResults)
+            if (telephonyManager.networkType != TelephonyManager.NETWORK_TYPE_UNKNOWN) {
+                cellTowers = getTowerInfo(telephonyManager.allCellInfo)
+            }
+
+            if (wifiManager.connectionInfo.networkId != -1) {
+                wifiAccessPoints = getWifiAccessPointInfo(wifiManager.scanResults)
+            }
+
+            /*no need to send a MLS-request if there is no
+                  celltower of wifiaccesspoint information*/
+            if (cellTowers.isNullOrEmpty() && wifiAccessPoints.isNullOrEmpty()){
+                return null
+            }
 
             return MLSRequest(
-                cellTowers = cellTowers, wifiAccessPoints = wifiAccessPoints,
-                considerIp = null, carrier = null,
-                homeMobileCountryCode = null, homeMobileNetworkCode = null
+                    cellTowers = cellTowers, wifiAccessPoints = wifiAccessPoints,
+                    considerIp = null, carrier = null,
+                    homeMobileCountryCode = null, homeMobileNetworkCode = null
             )
         }
     }
@@ -87,53 +98,58 @@ class MozillaLocationService : Service() {
                 Log.d("MozillaLocationService", "GPS is not enabled")
                 return null
             }
-            val location =
-                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.takeUnless {
-                    // age is greater than one minute
-                    (SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos) > oneMinuteInNanos
-                }
-                    ?: suspendCancellableCoroutine<Location?> { continuation ->
-                        locationManager.requestSingleUpdate(
-                            LocationManager.GPS_PROVIDER,
-                            object : LocationListener {
-                                override fun onLocationChanged(location: Location?) {
-                                    continuation.resume(location)
-                                }
 
-                                override fun onStatusChanged(
-                                    provider: String?,
-                                    status: Int,
-                                    extras: Bundle?
-                                ) {
-                                    Log.d(
-                                        "MozillaLocationService",
-                                        "LocationListener Status changed"
-                                    )
-                                }
-
-                                override fun onProviderEnabled(provider: String?) {
-                                    Log.d("MozillaLocationService", "Provider enabled")
-                                }
-
-                                override fun onProviderDisabled(provider: String?) {
-                                    continuation.resumeWithException(Exception("Provider was disabled"))
-                                }
-
-                            },
-                            null
-                        )
+            try {
+                val location =
+                    locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.takeUnless {
+                        // age is greater than one minute
+                        (SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos) > oneMinuteInNanos
                     }
+                        ?: suspendCancellableCoroutine<Location?> { continuation ->
+                            locationManager.requestSingleUpdate(
+                                LocationManager.GPS_PROVIDER,
+                                object : LocationListener {
+                                    override fun onLocationChanged(location: Location?) {
+                                        continuation.resume(location)
+                                    }
 
-            Log.d("MozillaLocationService", "LocationManager got $location")
+                                    override fun onStatusChanged(
+                                        provider: String?,
+                                        status: Int,
+                                        extras: Bundle?
+                                    ) {
+                                        Log.d(
+                                            "MozillaLocationService",
+                                            "LocationListener Status changed"
+                                        )
+                                    }
 
-            return if (location != null) {
+                                    override fun onProviderEnabled(provider: String?) {
+                                        Log.d("MozillaLocationService", "Provider enabled")
+                                    }
+
+                                    override fun onProviderDisabled(provider: String?) {
+                                        Log.d("MozillaLocationService", "Provider is disabled")
+                                        continuation.cancel(Exception("Provider was disabled"))
+                                    }
+                                },
+                                null
+                            )
+                        }
+
+                Log.d("MozillaLocationService", "LocationManager got $location")
+
+                return if (location != null) {
                 Position(location.longitude, location.latitude, location.accuracy.toDouble())
-            } else null
+                } else null
+            } catch (e: Exception) {
+                return null
+            }
         }
 
     }
 
-    private fun getTowerInfo(cellinfo: List<CellInfo>): List<CellTowerInfo> {
+    private fun getTowerInfo(cellinfo: List<CellInfo?>): List<CellTowerInfo?> {
         return cellinfo.map {
             CellTowerInfo().apply {
                 radioType = when (it) {
@@ -196,19 +212,19 @@ class MozillaLocationService : Service() {
         }
     }
 
-    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult>): List<WifiAccessPointInfo> {
+    private fun getWifiAccessPointInfo(wifiInfo: List<ScanResult?>): List<WifiAccessPointInfo> {
         return wifiInfo.map {
             WifiAccessPointInfo().apply {
-                macAddress = it.BSSID
-                age = SystemClock.elapsedRealtimeNanos() / 1_000_000 - it.timestamp / 1_000
-                channel = it.channelWidth
-                frequency = it.frequency
-                signalStrength = it.level
+                macAddress = it?.BSSID
+                age = it?.let{SystemClock.elapsedRealtimeNanos() / 1_000_000 - it.timestamp / 1000}
+                channel = it?.channelWidth
+                frequency = it?.frequency
+                signalStrength = it?.level
                 // Noise Level ist not available when using SDK
                 // Detection of noise level would require low-level NDK operations
                 // Noise Level out of scope
                 // newWifiAccessPoint.signalToNoiseRatio
-                ssid = it.SSID
+                ssid = it?.SSID
             }
         }
     }
