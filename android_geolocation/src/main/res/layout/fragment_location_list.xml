@@ -62,7 +62,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center|top"
                 android:background="@color/colorLightGray"
                 android:orientation="vertical"
@@ -91,6 +91,12 @@
                     android:ems="10"
                     android:inputType="textPassword" />
 
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pop_up_allowed_characters" />
+
                 <Button
                     android:id="@+id/btn_security"
                     android:layout_width="match_parent"
@@ -102,7 +108,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/secondaryLightColor"
-                    android:text="@string/pop_up_cancel" />
+                    android:text="@string/pop_up_cancel"
+                    android:onClick="@{() -> vm.cancelEnableSecurity()}" />
             </LinearLayout>
         </FrameLayout>
 

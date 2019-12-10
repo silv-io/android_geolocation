@@ -25,6 +25,7 @@
     <string name="pop_up_password">Password</string>
     <string name="pop_up_cancel">Cancel</string>
     <string name="pop_up_encrypt">Enable Security</string>
+    <string name="pop_up_allowed_characters">The password must consist of alphanumeric characters and the following special characters:\n!"#$%&amp;'()*+,-./:;&lt;=>?@[\]^_`{|}~</string>
 
     <string name="database_name">Locations.db</string>
 </resources>

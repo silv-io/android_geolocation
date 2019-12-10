@@ -2,7 +2,6 @@ package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
 import android.text.Editable
-import android.util.Base64
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
@@ -18,7 +17,6 @@ import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
 
@@ -85,9 +83,11 @@ class LocationListViewModel(
     }
 
     fun startEnableSecurity() {
-        Log.println(Log.INFO, "SECURITY", "Started to enable security.")
+        _securityPopupVisibility.value = true
+    }
 
-        _securityPopupVisibility.value = !(_securityPopupVisibility.value!!)
+    fun cancelEnableSecurity() {
+        _securityPopupVisibility.value = false
     }
 
     fun secureDatabase(pwd: Editable) {
@@ -95,9 +95,30 @@ class LocationListViewModel(
         pwd.getChars(0, pwd.length, passphrase, 0)
         pwd.clear()
 
-        locationRepository.openEncryptedDatabase("asdf".toByteArray())
+        val passphraseBytes = passphrase.toByteArray()
+
+        /* for (i in passphrase.indices) {
+            passphrase[i] = 0.toChar()
+        } */
+
+        locationRepository.openEncryptedDatabase(passphrase.toString().toByteArray())
+
+        for (i in passphraseBytes.indices) {
+            passphraseBytes[i] = 0.toByte()
+        }
 
         this.loadLocations()
+    }
+
+    fun CharArray.toByteArray(): ByteArray {
+        val charBuf: CharBuffer = CharBuffer.wrap(this)
+        val byteBuf: ByteBuffer = StandardCharsets.UTF_8.encode(charBuf)
+        val bytes = ByteArray(byteBuf.remaining())
+        byteBuf.get(bytes, 0, bytes.size)
+        charBuf.clear()
+        byteBuf.clear()
+
+        return bytes
     }
 
     private fun showSnackbarMessage(@StringRes message: Int) {

@@ -158,9 +158,9 @@ class LocationRepository(
         }
 
         // clear secret
-        /* for (i in secret.indices) {
-            secret[i] = 0.toChar()
-        } */
+        for (i in secret.indices) {
+            secret[i] = 0.toByte()
+        }
     }
 
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
@@ -175,9 +175,9 @@ class LocationRepository(
             .build()
 
         // clear secret
-        /* for (i in secret.indices) {
-            secret[i] = 0.toChar()
-        } */
+        for (i in secret.indices) {
+            secret[i] = 0.toByte()
+        }
 
         return locationDb
     }
