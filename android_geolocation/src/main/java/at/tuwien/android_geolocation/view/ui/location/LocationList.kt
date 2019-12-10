@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.*
+import android.widget.Button
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import at.tuwien.android_geolocation.service.AntennaService
@@ -44,6 +46,11 @@ class LocationList : Fragment() {
             vm = viewModel
         }
 
+        val pwd = viewDataBinding.root.findViewById<EditText>(R.id.txt_password)
+        val btn = viewDataBinding.root.findViewById<Button>(R.id.btn_security)
+
+        btn.setOnClickListener { viewModel.secureDatabase(pwd.text) }
+
         return viewDataBinding.root
     }
 
@@ -66,7 +73,7 @@ class LocationList : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_enable_security -> {
-                this.viewModel.startEnableSecurity()
+                viewModel.startEnableSecurity()
                 true
             }
             else -> false

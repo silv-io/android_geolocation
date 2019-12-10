@@ -26,6 +26,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
+
 class LocationRepository(
     private val locationDao: LocationDao,
     private val mlsAPI: MLSAPI,
@@ -151,10 +152,15 @@ class LocationRepository(
         return SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.ENCRYPTED
     }
 
-    fun openEncrpytedDatabase(secret: ByteArray) {
+    fun openEncryptedDatabase(secret: ByteArray) {
         if (encryptedDatabase == null) {
             encryptedDatabase = buildEncryptedDatabase(context, secret)
         }
+
+        // clear secret
+        /* for (i in secret.indices) {
+            secret[i] = 0.toChar()
+        } */
     }
 
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
@@ -164,8 +170,15 @@ class LocationRepository(
             SQLCipherUtils.encrypt(context, context.getString(R.string.database_name), secret)
         }
 
-        return Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.database_name))
+        val locationDb = Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.database_name))
             .openHelperFactory(factory)
             .build()
+
+        // clear secret
+        /* for (i in secret.indices) {
+            secret[i] = 0.toChar()
+        } */
+
+        return locationDb
     }
 }

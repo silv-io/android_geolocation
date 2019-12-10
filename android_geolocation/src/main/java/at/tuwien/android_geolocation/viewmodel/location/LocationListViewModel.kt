@@ -1,6 +1,8 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
+import android.text.Editable
+import android.util.Base64
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
@@ -14,12 +16,19 @@ import at.tuwien.android_geolocation.util.Event
 import at.tuwien.android_geolocation.util.Result
 import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.launch
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 
 class LocationListViewModel(
     private val locationRepository: LocationRepository,
     application: Application
 ) : AndroidViewModel(application) {
+    val _securityPopupVisibility = MutableLiveData<Boolean>().apply {  value = false }
+    val securityPopupVisibility: LiveData<Boolean> = _securityPopupVisibility
+
     private val _items = MutableLiveData<List<Location>>().apply { value = emptyList() }
     val items: LiveData<List<Location>> = _items
 
@@ -78,7 +87,17 @@ class LocationListViewModel(
     fun startEnableSecurity() {
         Log.println(Log.INFO, "SECURITY", "Started to enable security.")
 
-        // TODO: Enable security
+        _securityPopupVisibility.value = !(_securityPopupVisibility.value!!)
+    }
+
+    fun secureDatabase(pwd: Editable) {
+        val passphrase = CharArray(pwd.length)
+        pwd.getChars(0, pwd.length, passphrase, 0)
+        pwd.clear()
+
+        locationRepository.openEncryptedDatabase("asdf".toByteArray())
+
+        this.loadLocations()
     }
 
     private fun showSnackbarMessage(@StringRes message: Int) {

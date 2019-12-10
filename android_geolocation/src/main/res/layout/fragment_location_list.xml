@@ -59,6 +59,51 @@
                 app:layoutManager="LinearLayoutManager"
                 app:layout_anchor="@+id/frameLayout"
                 app:layout_anchorGravity="center" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:background="@color/colorLightGray"
+                android:orientation="vertical"
+                android:padding="@dimen/item_content_padding"
+                android:visibility="@{vm.securityPopupVisibility ? View.VISIBLE : View.GONE}">
+
+                <TextView
+                    android:id="@+id/heading_popup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pop_up_heading"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/label_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pop_up_password" />
+
+                <EditText
+                    android:id="@+id/txt_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textPassword" />
+
+                <Button
+                    android:id="@+id/btn_security"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pop_up_encrypt" />
+
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/secondaryLightColor"
+                    android:text="@string/pop_up_cancel" />
+            </LinearLayout>
         </FrameLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
