@@ -18,4 +18,5 @@
 
     <string name="snackbar_permission_error">Could not get location! Please restart app to check permissions</string>
     <string name="snackbar_loading_location">A new location report is already loading. Please wait for completion!</string>
+    <string name="menu_enable_security">Enable Security</string>
 </resources>

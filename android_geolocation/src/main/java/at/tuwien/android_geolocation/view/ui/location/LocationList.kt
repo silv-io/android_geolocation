@@ -7,9 +7,7 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import at.tuwien.android_geolocation.service.MozillaLocationService
@@ -19,8 +17,10 @@ import at.tuwien.android_geolocation.view.adapter.LocationListAdapter
 import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.tuwien.geolocation_android.R
 import com.tuwien.geolocation_android.databinding.FragmentLocationListBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class LocationList : Fragment() {
 
@@ -59,8 +59,24 @@ class LocationList : Fragment() {
         setUpListAdapter()
         setUpNavigation()
 
+        setHasOptionsMenu(true)
+
         viewModel.loadLocations()
     }
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.add(R.string.menu_enable_security)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_enable_security -> true
+            else -> false
+        }
+    }
+
 
     private fun setUpNavigation() {
         viewModel.openLocationEvent.observe(this, EventObserver {
@@ -104,9 +120,10 @@ class LocationList : Fragment() {
         this.context?.bindService(serviceBindIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private val serviceConnection = object: ServiceConnection {
+    private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder: MozillaLocationService.MozillaLocationBinder = service as MozillaLocationService.MozillaLocationBinder
+            val binder: MozillaLocationService.MozillaLocationBinder =
+                service as MozillaLocationService.MozillaLocationBinder
             mozillaLocationService = binder.getService()
             serviceIsBound = true
 
