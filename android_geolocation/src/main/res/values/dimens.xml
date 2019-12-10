@@ -4,11 +4,16 @@
     <dimen name="app_bar_height">200dp</dimen>
     <dimen name="item_width">200dp</dimen>
     <dimen name="item_content_padding">14dp</dimen>
-    <dimen name="item_seperator_margin">4dp</dimen>
+    <dimen name="item_separator_margin">8dp</dimen>
     <dimen name="list_bottom_margin">24dp</dimen>
     <dimen name="card_corner_radius">4dp</dimen>
     <dimen name="card_elevation">4dp</dimen>
     <dimen name="list_label_margin">12dp</dimen>
+    <dimen name="min_list_number_width">24dp</dimen>
+
+    <dimen name="header_text_size">18sp</dimen>
+
+    <dimen name="details_divider_height">1dp</dimen>
 
     <!-- Margin between the checked icon and the card -->
     <dimen xmlns:tools="http://schemas.android.com/tools"

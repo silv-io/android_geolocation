@@ -43,6 +43,7 @@ class LocationList : Fragment() {
         viewDataBinding = FragmentLocationListBinding.inflate(inflater, container, false).apply {
             vm = viewModel
         }
+
         return viewDataBinding.root
     }
 
@@ -54,20 +55,20 @@ class LocationList : Fragment() {
         setUpListAdapter()
         setUpNavigation()
 
-        setHasOptionsMenu(true)
+        val toolbar: androidx.appcompat.widget.Toolbar = viewDataBinding.root.findViewById(R.id.list_toolbar)
+        toolbar.inflateMenu(R.menu.list_menu)
+        toolbar.setOnMenuItemClickListener { item -> onOptionsItemSelected((item))}
 
         viewModel.loadLocations()
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.add(R.string.menu_enable_security)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_enable_security -> true
+            R.id.menu_enable_security -> {
+                this.viewModel.startEnableSecurity()
+                true
+            }
             else -> false
         }
     }

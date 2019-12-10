@@ -75,6 +75,11 @@ class LocationListViewModel(
         }
     }
 
+    fun startEnableSecurity() {
+        Log.println(Log.INFO, "SECURITY", "Started to enable security.")
+
+        // TODO: Enable security
+    }
 
     private fun showSnackbarMessage(@StringRes message: Int) {
         _snackbarText.value = Event(message)
