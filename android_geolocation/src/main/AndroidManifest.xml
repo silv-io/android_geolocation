@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name="at.tuwien.android_geolocation.service.MozillaLocationService"
+            android:name="at.tuwien.android_geolocation.service.AntennaService"
             android:enabled="true"
             android:exported="true" />
 

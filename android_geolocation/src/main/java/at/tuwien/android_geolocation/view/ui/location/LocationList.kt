@@ -10,7 +10,7 @@ import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import at.tuwien.android_geolocation.service.MozillaLocationService
+import at.tuwien.android_geolocation.service.AntennaService
 import at.tuwien.android_geolocation.util.EventObserver
 import at.tuwien.android_geolocation.util.setupSnackbar
 import at.tuwien.android_geolocation.view.adapter.LocationListAdapter
@@ -29,7 +29,7 @@ class LocationList : Fragment() {
     private lateinit var viewDataBinding: FragmentLocationListBinding
     private lateinit var listAdapter: LocationListAdapter
 
-    private lateinit var mozillaLocationService: MozillaLocationService
+    private lateinit var antennaService: AntennaService
     private var serviceIsBound: Boolean = false
 
     @Volatile
@@ -38,7 +38,7 @@ class LocationList : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startMozillaLocationService()
+        startAntennaService()
     }
 
     override fun onCreateView(
@@ -101,7 +101,7 @@ class LocationList : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        startMozillaLocationService()
+        startAntennaService()
     }
 
     override fun onStop() {
@@ -112,26 +112,26 @@ class LocationList : Fragment() {
         }
     }
 
-    private fun startMozillaLocationService() {
-        val serviceIntent = Intent(this.context, MozillaLocationService::class.java)
+    private fun startAntennaService() {
+        val serviceIntent = Intent(this.context, AntennaService::class.java)
         this.context?.startService(serviceIntent)
 
-        val serviceBindIntent = Intent(this.context, MozillaLocationService::class.java)
+        val serviceBindIntent = Intent(this.context, AntennaService::class.java)
         this.context?.bindService(serviceBindIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder: MozillaLocationService.MozillaLocationBinder =
-                service as MozillaLocationService.MozillaLocationBinder
-            mozillaLocationService = binder.getService()
+            val binder: AntennaService.AntennaBinder =
+                service as AntennaService.AntennaBinder
+            antennaService = binder.getService()
             serviceIsBound = true
 
-            viewModel.setMozillaLocationService(mozillaLocationService)
+            viewModel.setAntennaService(antennaService)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            viewModel.setMozillaLocationService(null)
+            viewModel.setAntennaService(null)
 
             serviceIsBound = false
         }

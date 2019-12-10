@@ -24,22 +24,22 @@ import at.tuwien.android_geolocation.service.model.Position
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-class MozillaLocationService : Service() {
+class AntennaService : Service() {
 
-    private val mozillaLocationBinder = MozillaLocationBinder()
+    private val antennaBinder = AntennaBinder()
 
     companion object const {
         private const val oneMinuteInNanos = 6 * 10e9
     }
 
-    inner class MozillaLocationBinder : Binder() {
-        fun getService(): MozillaLocationService {
-            return this@MozillaLocationService
+    inner class AntennaBinder : Binder() {
+        fun getService(): AntennaService {
+            return this@AntennaService
         }
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        return mozillaLocationBinder
+        return antennaBinder
     }
 
     fun getMLSInfo(): MLSRequest? {
@@ -89,13 +89,13 @@ class MozillaLocationService : Service() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("MozillaLocationService", "Permission for GPS missing")
+            Log.d("AntennaService", "Permission for GPS missing")
             return null
         } else {
             val locationManager: LocationManager =
                 this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                Log.d("MozillaLocationService", "GPS is not enabled")
+                Log.d("AntennaService", "GPS is not enabled")
                 return null
             }
 
@@ -119,17 +119,17 @@ class MozillaLocationService : Service() {
                                         extras: Bundle?
                                     ) {
                                         Log.d(
-                                            "MozillaLocationService",
+                                            "AntennaService",
                                             "LocationListener Status changed"
                                         )
                                     }
 
                                     override fun onProviderEnabled(provider: String?) {
-                                        Log.d("MozillaLocationService", "Provider enabled")
+                                        Log.d("AntennaService", "Provider enabled")
                                     }
 
                                     override fun onProviderDisabled(provider: String?) {
-                                        Log.d("MozillaLocationService", "Provider is disabled")
+                                        Log.d("AntennaService", "Provider is disabled")
                                         continuation.cancel(Exception("Provider was disabled"))
                                     }
                                 },
@@ -137,7 +137,7 @@ class MozillaLocationService : Service() {
                             )
                         }
 
-                Log.d("MozillaLocationService", "LocationManager got $location")
+                Log.d("AntennaService", "LocationManager got $location")
 
                 return if (location != null) {
                 Position(location.longitude, location.latitude, location.accuracy.toDouble())

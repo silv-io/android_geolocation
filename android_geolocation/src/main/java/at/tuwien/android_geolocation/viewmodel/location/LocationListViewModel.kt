@@ -7,7 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import at.tuwien.android_geolocation.service.MozillaLocationService
+import at.tuwien.android_geolocation.service.AntennaService
 import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
@@ -32,10 +32,10 @@ class LocationListViewModel(
     private val _progressBar = MutableLiveData<Boolean>().apply { value = false }
     val progressBar: LiveData<Boolean> = _progressBar
 
-    private var mozillaLocationService: MozillaLocationService? = null
+    private var antennaService: AntennaService? = null
 
-    fun setMozillaLocationService(mozillaLocationService: MozillaLocationService?) {
-        this.mozillaLocationService = mozillaLocationService
+    fun setAntennaService(antennaService: AntennaService?) {
+        this.antennaService = antennaService
     }
 
     fun loadLocations() {
@@ -60,8 +60,8 @@ class LocationListViewModel(
             showSnackbarMessage(R.string.snackbar_loading_location)
         } else {
             _progressBar.value = true
-            val mlsInfo = mozillaLocationService?.getMLSInfo()
-            val gpsInfo = mozillaLocationService?.getGPSInfo()
+            val mlsInfo = antennaService?.getMLSInfo()
+            val gpsInfo = antennaService?.getGPSInfo()
             Log.d("LocationListViewModel", "gps info is $gpsInfo, mlsinfo is $mlsInfo")
 
             if (mlsInfo != null && gpsInfo != null) {
