@@ -31,3 +31,7 @@ fun Double.round(decimals: Int): Double {
     repeat(decimals) { multiplier *= 10 }
     return round(this * multiplier) / multiplier
 }
+
+fun CharArray.toByteArray(): ByteArray {
+    return this.map { it.toByte() }.toByteArray()
+}
