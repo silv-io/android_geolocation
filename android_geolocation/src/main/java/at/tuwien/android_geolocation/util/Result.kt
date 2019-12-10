@@ -22,7 +22,7 @@ sealed class Result<out R> {
 }
 
 /**
- * `true` if [Result] is of type [Success] & holds non-null [Success.data].
+ * `true` if [Result] is of type [Result.Success] & holds non-null [Result.Success.data].
  */
 val Result<*>.succeeded
     get() = this is Result.Success && data != null

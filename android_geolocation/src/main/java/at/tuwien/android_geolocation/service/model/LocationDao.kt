@@ -9,7 +9,7 @@ import androidx.room.Query
 interface LocationDao {
 
     /**
-     * Select all tasks from the tasks table.
+     * Select all locations from the locations table.
      *
      * @return all locations.
      */
@@ -28,7 +28,7 @@ interface LocationDao {
     /**
      * Insert a location in the database. If the location already exists, replace it.
      *
-     * @param task the task to be inserted.
+     * @param location the location to be inserted.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocation(location: Location): Long
@@ -42,7 +42,7 @@ interface LocationDao {
     suspend fun deleteLocationById(locationId: Long): Int
 
     /**
-     * Delete all tasks.
+     * Delete all locations.
      */
     @Query("DELETE FROM locations")
     suspend fun deleteLocations()

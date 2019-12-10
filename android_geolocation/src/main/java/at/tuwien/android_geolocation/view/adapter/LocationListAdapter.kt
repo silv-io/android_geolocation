@@ -48,7 +48,6 @@ class LocationListAdapter(private val viewModel: LocationListViewModel) :
     }
 }
 
-
 /**
  * Callback for calculating the diff between two non-null items in a list.
  *

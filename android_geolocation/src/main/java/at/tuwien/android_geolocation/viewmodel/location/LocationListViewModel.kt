@@ -47,7 +47,7 @@ class LocationListViewModel(
         }
     }
 
-    suspend fun getLocationsFromRepository(): Result<List<Location>>? {
+    private suspend fun getLocationsFromRepository(): Result<List<Location>>? {
         return locationRepository.getLocations()
     }
 

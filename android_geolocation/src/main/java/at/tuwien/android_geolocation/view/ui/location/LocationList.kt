@@ -15,7 +15,6 @@ import at.tuwien.android_geolocation.util.EventObserver
 import at.tuwien.android_geolocation.util.setupSnackbar
 import at.tuwien.android_geolocation.view.adapter.LocationListAdapter
 import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tuwien.geolocation_android.R
 import com.tuwien.geolocation_android.databinding.FragmentLocationListBinding
@@ -31,10 +30,6 @@ class LocationList : Fragment() {
 
     private lateinit var antennaService: AntennaService
     private var serviceIsBound: Boolean = false
-
-    @Volatile
-    private var numChecked: Int = 0
-    private lateinit var fab: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

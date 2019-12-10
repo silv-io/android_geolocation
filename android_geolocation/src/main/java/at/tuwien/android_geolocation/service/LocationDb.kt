@@ -6,7 +6,7 @@ import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.model.LocationDao
 
 /**
- * The Room Database that contains the Task table.
+ * The Room Database that contains the Location table.
  *
  * Note that exportSchema should be true in production databases.
  */

@@ -19,14 +19,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class LocationDetails : Fragment() {
     private lateinit var viewDataBinding: FragmentLocationDetailsBinding
 
-    val args: LocationDetailsArgs by navArgs()
+    private val args: LocationDetailsArgs by navArgs()
 
     private val viewModel by viewModel<LocationDetailsViewModel>()
-
-    companion object {
-        fun newInstance() =
-            LocationDetails()
-    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
