@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.room.Room
+import at.tuwien.android_geolocation.service.LocationDb
 import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.MLSResponse
 import at.tuwien.android_geolocation.service.model.Location
@@ -11,7 +13,10 @@ import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.MLSAPI
 import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.util.Result
+import com.commonsware.cwac.saferoom.SQLCipherUtils
+import com.commonsware.cwac.saferoom.SafeHelperFactory
 import com.tuwien.geolocation_android.BuildConfig
+import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,11 +29,18 @@ import java.io.OutputStreamWriter
 class LocationRepository(
     private val locationDao: LocationDao,
     private val mlsAPI: MLSAPI,
+    private val context: Context,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
+    private var encryptedDatabase: LocationDb? = null
+
     suspend fun getLocations(): Result<List<Location>> = withContext(ioDispatcher) {
         return@withContext try {
-            Result.Success(locationDao.getLocations())
+            if (encryptedDatabase != null) {
+                Result.Success(encryptedDatabase!!.locationDao().getLocations())
+            } else {
+                Result.Success(locationDao.getLocations())
+            }
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -36,9 +48,13 @@ class LocationRepository(
 
     suspend fun getLocation(locationId: Long): Result<Location> = withContext(ioDispatcher) {
         try {
-            val task = locationDao.getLocationById(locationId)
-            if (task != null) {
-                return@withContext Result.Success(task)
+            val location = if (encryptedDatabase != null) {
+                encryptedDatabase!!.locationDao().getLocationById(locationId)
+            } else {
+                locationDao.getLocationById(locationId)
+            }
+            if (location != null) {
+                return@withContext Result.Success(location)
             } else {
                 return@withContext Result.Error(Exception("Task not found!"))
             }
@@ -62,20 +78,33 @@ class LocationRepository(
                 params = mlsRequest
             )
 
-            val locationId = locationDao.insertLocation(location)
+            val locationId = if (encryptedDatabase != null) {
+                encryptedDatabase!!.locationDao().insertLocation(location)
+            } else {
+                locationDao.insertLocation(location)
+            }
+
             Log.println(Log.INFO, "location_repository", "got locationID: $locationId")
             return@withContext Result.Success(locationId)
         }
 
     suspend fun deleteAllLocations() = withContext(ioDispatcher) {
-        locationDao.deleteLocations()
+        if (encryptedDatabase != null) {
+            encryptedDatabase!!.locationDao().deleteLocations()
+        } else {
+            locationDao.deleteLocations()
+        }
     }
 
     suspend fun deleteLocation(locationId: Long) = withContext<Unit>(ioDispatcher) {
-        locationDao.deleteLocationById(locationId)
+        if (encryptedDatabase != null) {
+            encryptedDatabase!!.locationDao().deleteLocationById(locationId)
+        } else {
+            locationDao.deleteLocationById(locationId)
+        }
     }
 
-    fun createTemporaryLocationPlaintextFile(context: Context, text: String): Uri {
+    fun createTemporaryLocationPlaintextFile(text: String): Uri {
         val file = File(context.cacheDir, "location.txt")
 
         val fos = FileOutputStream(file)
@@ -116,5 +145,27 @@ class LocationRepository(
             latitude = mlsResponse.location.lat!!,
             accuracy = mlsResponse.accuracy!!
         )
+    }
+
+    fun isDatabaseEncrypted(): Boolean {
+        return SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.ENCRYPTED
+    }
+
+    fun openEncrpytedDatabase(secret: ByteArray) {
+        if (encryptedDatabase == null) {
+            encryptedDatabase = buildEncryptedDatabase(context, secret)
+        }
+    }
+
+    private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
+        val factory = SafeHelperFactory(secret)
+
+        if (SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.UNENCRYPTED) {
+            SQLCipherUtils.encrypt(context, context.getString(R.string.database_name), secret)
+        }
+
+        return Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.database_name))
+            .openHelperFactory(factory)
+            .build()
     }
 }

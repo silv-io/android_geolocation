@@ -48,7 +48,6 @@ class LocationDetailsViewModel(
         val context = getApplication<Application>().applicationContext
 
         val uri = locationRepository.createTemporaryLocationPlaintextFile(
-            context,
             _location.value!!.plaintextString
         )
 
