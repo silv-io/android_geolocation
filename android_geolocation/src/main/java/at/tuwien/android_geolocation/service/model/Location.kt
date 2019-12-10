@@ -28,9 +28,12 @@ data class Location(
     }
 
     val plaintextString: String
-        get() = """Timestamp: ${getFormattedTimestamp()}${System.lineSeparator()}
-            |MLS:  ${this.mls}${System.lineSeparator()}
-            |GPS:  ${this.gps}${System.lineSeparator()}
+        get() = """Timestamp: ${getFormattedTimestamp()}
+            |GPS:  ${this.gps}
+            |MLS:  ${this.mls}Bei
+            |Distance between GPS and MLS (m):  ${this.gps.diff(this.mls)}
+            |GPS accuracy (m):  ${this.gps.roundAccuracy}
+            |MLS accuracy (m):  ${this.mls.roundAccuracy}
             |MLS parameters: ${this.params}
         """.trimMargin()
 
@@ -68,7 +71,7 @@ data class Position(
 
     override fun toString(): String {
         return String.format(
-            "%s%c %s%c",
+            """%s%c %s%c""",
             degToCoordString(latitude),
             if (latitude >= 0) 'N' else 'S',
             degToCoordString(longitude),
@@ -84,7 +87,7 @@ data class Position(
         val arcmin: Int = floor(conversionVar).toInt()
         val arcsec: Double = (conversionVar - arcmin) * 60
 
-        return String.format("%d°%d'%.2f''", deg, arcmin, arcsec)
+        return String.format("""%d°%d'%.2f''""", deg, arcmin, arcsec)
     }
 }
 
