@@ -13,6 +13,7 @@ import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
 import at.tuwien.android_geolocation.util.Result
+import at.tuwien.android_geolocation.util.succeeded
 import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
@@ -24,8 +25,11 @@ class LocationListViewModel(
     private val locationRepository: LocationRepository,
     application: Application
 ) : AndroidViewModel(application) {
-    val _securityPopupVisibility = MutableLiveData<Boolean>().apply {  value = false }
+    private val _securityPopupVisibility = MutableLiveData<Boolean>().apply {  value = false }
     val securityPopupVisibility: LiveData<Boolean> = _securityPopupVisibility
+
+    private val _secureModeEnabled = MutableLiveData<Boolean>().apply {  value = false }
+    val secureModeEnabled: LiveData<Boolean> = _secureModeEnabled
 
     private val _items = MutableLiveData<List<Location>>().apply { value = emptyList() }
     val items: LiveData<List<Location>> = _items
@@ -40,19 +44,23 @@ class LocationListViewModel(
     val progressBar: LiveData<Boolean> = _progressBar
 
     private var antennaService: AntennaService? = null
-    var isEncryptedDatabase: Boolean = false
 
     fun setAntennaService(antennaService: AntennaService?) {
         this.antennaService = antennaService
     }
 
-    fun loadLocations() {
+    fun loadLocations(): Boolean {
+        var isSuccessful = false
+
         viewModelScope.launch {
             val result = getLocationsFromRepository()
+            if (result?.succeeded!!) { isSuccessful = true }
             (result as? Result.Success)?.let {
                 _items.value = result.data
             }
         }
+
+        return isSuccessful
     }
 
     private suspend fun getLocationsFromRepository(): Result<List<Location>>? {
@@ -84,7 +92,11 @@ class LocationListViewModel(
     }
 
     fun startEnableSecurity() {
-        _securityPopupVisibility.value = true
+        if (this._secureModeEnabled.value!!) {
+            showSnackbarMessage(R.string.snackbar_security_already_enabled)
+        } else {
+            _securityPopupVisibility.value = true
+        }
     }
 
     fun cancelEnableSecurity() {
@@ -94,26 +106,25 @@ class LocationListViewModel(
     fun secureDatabase(pwd: Editable) {
         val passphrase = CharArray(pwd.length)
         pwd.getChars(0, pwd.length, passphrase, 0)
-        // pwd.clear()
+        pwd.clear()
 
-        // val passphraseBytes = passphrase.toByteArray()
+        val passphraseBytes = passphrase.toByteArray()
 
-        /* for (i in passphrase.indices) {
+        for (i in passphrase.indices) {
             passphrase[i] = 0.toChar()
-        } */
+        }
 
-        locationRepository.openEncryptedDatabase(passphrase.toString().toByteArray())
+        locationRepository.openEncryptedDatabase(passphraseBytes)
 
-        /* for (i in passphraseBytes.indices) {
-            passphraseBytes[i] = 0.toByte()
-        } */
-
-        this.loadLocations()
-        isEncryptedDatabase = true
-        _securityPopupVisibility.value = false
+        if (this.loadLocations()) {
+            _secureModeEnabled.value = true
+            _securityPopupVisibility.value = false
+        } else {
+            showSnackbarMessage(R.string.snackbar_security_error_connecting)
+        }
     }
 
-    fun CharArray.toByteArray(): ByteArray {
+    private fun CharArray.toByteArray(): ByteArray {
         val charBuf: CharBuffer = CharBuffer.wrap(this)
         val byteBuf: ByteBuffer = StandardCharsets.UTF_8.encode(charBuf)
         val bytes = ByteArray(byteBuf.remaining())
@@ -122,14 +133,6 @@ class LocationListViewModel(
         byteBuf.clear()
 
         return bytes
-    }
-
-    fun isDatabaseEncrypted(): Boolean {
-        return locationRepository.isDatabaseEncrypted()
-    }
-
-    fun closeEncryptedDatabase() {
-        locationRepository.closeEncryptedDatabase()
     }
 
     private fun showSnackbarMessage(@StringRes message: Int) {

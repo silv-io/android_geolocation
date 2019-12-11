@@ -51,66 +51,90 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/item_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@{vm.items}"
-                app:layoutManager="LinearLayoutManager"
-                app:layout_anchor="@+id/frameLayout"
-                app:layout_anchorGravity="center" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center|top"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/header_secure_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorLightGray"
+                    android:padding="@dimen/item_content_padding"
+                    android:text="@string/header_encrypted_mode"
+                    android:textAlignment="center"
+                    android:visibility="@{vm.secureModeEnabled ? View.VISIBLE : View.GONE}" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/item_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@{vm.items}"
+                    app:layoutManager="LinearLayoutManager"
+                    app:layout_anchor="@+id/frameLayout"
+                    app:layout_anchorGravity="center">
+
+                </androidx.recyclerview.widget.RecyclerView>
+            </LinearLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@color/colorLightGray"
-                android:orientation="vertical"
-                android:padding="@dimen/item_content_padding"
                 android:visibility="@{vm.securityPopupVisibility ? View.VISIBLE : View.GONE}">
 
-                <TextView
-                    android:id="@+id/heading_popup"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/pop_up_heading"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp" />
+                    android:layout_gravity="center|top"
+                    android:orientation="vertical"
+                    android:padding="@dimen/item_content_padding">
 
-                <TextView
-                    android:id="@+id/label_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pop_up_password" />
+                    <TextView
+                        android:id="@+id/heading_popup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pop_up_heading"
+                        android:textAlignment="center"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp" />
 
-                <EditText
-                    android:id="@+id/txt_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="textPassword" />
+                    <TextView
+                        android:id="@+id/label_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pop_up_password" />
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pop_up_allowed_characters" />
+                    <EditText
+                        android:id="@+id/txt_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:inputType="textPassword" />
 
-                <Button
-                    android:id="@+id/btn_security"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pop_up_encrypt" />
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pop_up_warning" />
 
-                <Button
-                    android:id="@+id/btn_cancel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/secondaryLightColor"
-                    android:text="@string/pop_up_cancel"
-                    android:onClick="@{() -> vm.cancelEnableSecurity()}" />
-            </LinearLayout>
+                    <Button
+                        android:id="@+id/btn_security"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pop_up_encrypt" />
+
+                    <Button
+                        android:id="@+id/btn_cancel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/secondaryLightColor"
+                        android:onClick="@{() -> vm.cancelEnableSecurity()}"
+                        android:text="@string/pop_up_cancel" />
+                </LinearLayout>
+            </ScrollView>
+
         </FrameLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -123,6 +147,7 @@
             android:backgroundTintMode="src_atop"
             android:onClick="@{() -> vm.fabClick()}"
             android:src="@drawable/ic_my_location_white"
+            android:visibility="@{vm.securityPopupVisibility ? View.GONE : View.VISIBLE}"
             app:fabSize="auto"
             app:tint="@color/primaryTextColor" />
 

@@ -66,19 +66,7 @@ class LocationList : Fragment() {
         toolbar.inflateMenu(R.menu.list_menu)
         toolbar.setOnMenuItemClickListener { item -> onOptionsItemSelected((item))}
 
-        if (!viewModel.isDatabaseEncrypted()) {
-            viewModel.loadLocations()
-        } else if (!viewModel.isEncryptedDatabase ) {
-            viewModel.startEnableSecurity()
-        } else {
-            viewModel.loadLocations()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.println(Log.ERROR, "#############", "onDestroy()")
-        viewModel.closeEncryptedDatabase()
+        viewModel.loadLocations()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

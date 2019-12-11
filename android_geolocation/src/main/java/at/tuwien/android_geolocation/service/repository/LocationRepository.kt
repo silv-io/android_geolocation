@@ -13,7 +13,6 @@ import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.MLSAPI
 import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.util.Result
-import com.commonsware.cwac.saferoom.SQLCipherUtils
 import com.commonsware.cwac.saferoom.SafeHelperFactory
 import com.tuwien.geolocation_android.BuildConfig
 import com.tuwien.geolocation_android.R
@@ -148,46 +147,17 @@ class LocationRepository(
         )
     }
 
-    fun isDatabaseEncrypted(): Boolean {
-        return SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.ENCRYPTED
-    }
-
     fun openEncryptedDatabase(secret: ByteArray) {
         if (encryptedDatabase == null) {
             encryptedDatabase = buildEncryptedDatabase(context, secret)
         }
-
-        // clear secret
-        /* for (i in secret.indices) {
-            secret[i] = 0.toByte()
-        } */
-    }
-
-    fun closeEncryptedDatabase() {
-        encryptedDatabase?.close()
     }
 
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
         val factory = SafeHelperFactory(secret)
 
-        if (SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.UNENCRYPTED) {
-            Log.println(Log.ERROR, "######################", "encrypting database!")
-            SQLCipherUtils.encrypt(context, context.getString(R.string.database_name), secret)
-        } else if (SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.ENCRYPTED) {
-            Log.println(Log.ERROR, "######################", "database is encrypted!")
-        }
-
-        val locationDb = Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.database_name))
+        return Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.encrypted_database_name))
             .openHelperFactory(factory)
             .build()
-
-        Log.println(Log.ERROR, "######################", locationDb.isOpen.toString())
-
-        // clear secret
-        /* for (i in secret.indices) {
-            secret[i] = 0.toByte()
-        } */
-
-        return locationDb
     }
 }
