@@ -23,6 +23,7 @@ import org.joda.time.DateTime
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStreamWriter
 
 
@@ -119,14 +120,18 @@ class LocationRepository(
     private fun getMLSPosition(mlsRequest: MLSRequest): Position? {
         val mlsResponse: MLSResponse?
 
-        val response: Response<MLSResponse?>? = mlsAPI.getMLSLocation(mlsRequest)?.execute()
-
-        return if (response != null && response.isSuccessful) {
-            mlsResponse = response.body()
-            val mlsResponseCopy = mlsResponse!!.copy()
-            validateAndConvertMLSResponse(mlsResponseCopy)
-        } else {
-            null
+        try {
+            val response: Response<MLSResponse?>? = mlsAPI.getMLSLocation(mlsRequest)?.execute()
+            return if (response != null && response.isSuccessful) {
+                mlsResponse = response.body()
+                val mlsResponseCopy = mlsResponse!!.copy()
+                validateAndConvertMLSResponse(mlsResponseCopy)
+            } else {
+                null
+            }
+        } catch (e: IOException) {
+            Log.d("LocationRepository", "MLS Call failed")
+            return null
         }
     }
 
@@ -161,7 +166,11 @@ class LocationRepository(
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
         val factory = SafeHelperFactory(secret)
 
-        return Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.encrypted_database_name))
+        return Room.databaseBuilder(
+            context,
+            LocationDb::class.java,
+            context.getString(R.string.encrypted_database_name)
+        )
             .openHelperFactory(factory)
             .build()
     }

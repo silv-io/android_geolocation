@@ -71,7 +71,10 @@ class LocationListViewModel(
             if (mlsInfo != null && gpsInfo != null) {
                 val result = locationRepository.newLocation(mlsInfo, gpsInfo)
                 _progressBar.value = false
-                (result as? Result.Success)?.let { _openLocationEvent.value = Event(it.data) }
+                when (result) {
+                    is Result.Success -> _openLocationEvent.value = Event(result.data)
+                    else -> showSnackbarMessage(R.string.app_name)
+                }
             } else {
                 _progressBar.value = false
                 showSnackbarMessage(R.string.snackbar_permission_error)
