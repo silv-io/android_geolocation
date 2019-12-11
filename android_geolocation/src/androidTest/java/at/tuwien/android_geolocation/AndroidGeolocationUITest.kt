@@ -1,11 +1,14 @@
 package at.tuwien.android_geolocation
 
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import at.tuwien.android_geolocation.data.AndroidGeolocationUITestData
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Result
 import at.tuwien.android_geolocation.view.ui.location.LocationActivity
+import com.schibsted.spain.barista.assertion.BaristaListAssertions.assertCustomAssertionAtPosition
 import com.schibsted.spain.barista.assertion.BaristaListAssertions.assertListItemCount
 import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertContains
 import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
@@ -15,13 +18,13 @@ import com.tuwien.geolocation_android.R
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import org.junit.After
+import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.loadKoinModules
-import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 
@@ -32,7 +35,7 @@ class AndroidGeolocationUITest : KoinTest {
     @JvmField
     val rule = ActivityTestRule(LocationActivity::class.java, true, false)
 
-    lateinit var mockLocationRepository: LocationRepository
+    private lateinit var mockLocationRepository: LocationRepository
 
     @Before
     fun setUp() {
@@ -112,7 +115,7 @@ class AndroidGeolocationUITest : KoinTest {
     }
 
     @Test
-    fun openDetailMeasurement() {
+    fun openDetailMeasurementWithId24() {
         val elementId: Long = 24
 
         coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
@@ -136,8 +139,9 @@ class AndroidGeolocationUITest : KoinTest {
     }
 
     @Test
-    fun deleteDetailMeasurement() {
+    fun deleteDetailMeasurementWithId3AndCheck() {
         val elementId: Long = 3
+        val elementPos: Int = AndroidGeolocationUITestData.locations.indexOf(AndroidGeolocationUITestData.locations.find { it.id == elementId })
         val tempList = AndroidGeolocationUITestData.locations.toMutableList()
 
         coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
@@ -147,6 +151,7 @@ class AndroidGeolocationUITest : KoinTest {
 
         rule.launchActivity(null)
 
+        assertCustomAssertionAtPosition(R.id.item_list, elementPos, R.id.id_num_entry, matches(withText(containsString(elementId.toString()))))
         clickListItem(R.id.item_list, AndroidGeolocationUITestData.locations.indexOfFirst { it.id == elementId })
 
         assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.getFormattedTimestamp())
@@ -160,6 +165,7 @@ class AndroidGeolocationUITest : KoinTest {
         clickOn(R.id.fab_delete)
 
         assertListItemCount(R.id.item_list, AndroidGeolocationUITestData.locations.size - 1)
+        assertCustomAssertionAtPosition(R.id.item_list, elementPos, R.id.id_num_entry, matches(not(withText(containsString(elementId.toString())))))
 
         coVerify(exactly = 2) { mockLocationRepository.getLocations() }
         coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations.find { it.id == elementId }!!.id) }
