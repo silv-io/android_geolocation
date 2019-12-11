@@ -8,13 +8,25 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="enableSecurity2">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="399" />
+                            <option name="y" value="-216" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="locationDetails">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="256" />
-                            <option name="y" value="12" />
+                            <option name="x" value="404" />
+                            <option name="y" value="160" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -34,12 +46,17 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
+                            <option name="x" value="-63" />
+                            <option name="y" value="23" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_locationList_to_enableSecurity2">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_locationList_to_locationDetails">
                               <value>
                                 <LayoutPositions />
