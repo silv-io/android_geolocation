@@ -21,6 +21,9 @@ import at.tuwien.android_geolocation.service.mls.CellTowerInfo
 import at.tuwien.android_geolocation.service.mls.MLSRequest
 import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
 import at.tuwien.android_geolocation.service.model.Position
+import at.tuwien.android_geolocation.util.GpsProviderException
+import at.tuwien.android_geolocation.util.MissingPermissionException
+import at.tuwien.android_geolocation.util.NoCellTowerOrWifiInfoFound
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -52,7 +55,7 @@ class AntennaService : Service() {
                 Manifest.permission.ACCESS_WIFI_STATE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            return null
+            throw MissingPermissionException("Permission for Location or WifiStatus missing")
         } else {
             val telephonyManager: TelephonyManager =
                 this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -72,7 +75,7 @@ class AntennaService : Service() {
             /*no need to send a MLS-request if there is no
                   celltower of wifiaccesspoint information*/
             if (cellTowers.isNullOrEmpty() && wifiAccessPoints.isNullOrEmpty()){
-                return null
+                throw NoCellTowerOrWifiInfoFound("No CellTower of Wifi-Accesspoint info could be found")
             }
 
             return MLSRequest(
@@ -90,13 +93,13 @@ class AntennaService : Service() {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Log.d("AntennaService", "Permission for GPS missing")
-            return null
+            throw MissingPermissionException("Permission for Gps is missing")
         } else {
             val locationManager: LocationManager =
                 this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 Log.d("AntennaService", "GPS is not enabled")
-                return null
+                throw GpsProviderException("GPS is not enabled")
             }
 
             try {
@@ -143,6 +146,7 @@ class AntennaService : Service() {
                 Position(location.longitude, location.latitude, location.accuracy.toDouble())
                 } else null
             } catch (e: Exception) {
+                Log.d("AntennaService", "Caught Exception: " + e.message)
                 return null
             }
         }

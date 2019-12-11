@@ -20,8 +20,10 @@
     <string name="snackbar_empty"></string>
     <string name="snackbar_deleted_location">Deleted Location!</string>
     <string name="snackbar_sent_location">Sent Location!</string>
-    <string name="snackbar_permission_error">Could not get location. Please restart app to check permissions or GPS Status!</string>
-    <string name="snackbar_loading_location">A new location report is already loading. Please wait for completion!</string>
+    <string name="snackbar_permission_error">Could not get location! Please restart app to check permissions.</string>
+    <string name="snackbar_loading_location">A new location report is already loading! Please wait for completion</string>
+    <string name="snackbar_gps_provider_error">GPS Provider not enabled! Please check if GPS is turned on.</string>
+    <string name="snackbar_no_gps_or_wifi_info_found">No CellTower of Wifi-Accesspoint-Info could be found.</string>
     <string name="snackbar_security_already_enabled">You are currently already in security mode!</string>
     <string name="snackbar_security_error_connecting">Could not connect to encrypted database. Please check password!</string>
     <string name="snackbar_security_empty_password">Password field is empty. Please enter a password!</string>
