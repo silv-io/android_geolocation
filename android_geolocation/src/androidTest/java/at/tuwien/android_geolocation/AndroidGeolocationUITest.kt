@@ -32,10 +32,6 @@ class AndroidGeolocationUITest : KoinTest {
     @JvmField
     val rule = ActivityTestRule(LocationActivity::class.java, true, false)
 
-    @Rule
-    @JvmField
-    val dataBindingIdlingResourceRule = DataBindingIdlingResourceRule(rule)
-
     lateinit var mockLocationRepository: LocationRepository
 
     @Before
@@ -49,8 +45,12 @@ class AndroidGeolocationUITest : KoinTest {
         })
     }
 
+    /**
+     * This test needs an application side GPS/Wifi/Telephony emulator as the service is left as-is (only the data/repository is mocked as per requirements).
+     */
     @Test
     fun createAndShowMeasurement() {
+        coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
         coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
         coEvery { mockLocationRepository.newLocation(any(), any()) } returns Result.Success(AndroidGeolocationUITestData.locations[0].id)
         coEvery { mockLocationRepository.getLocation(any()) } returns Result.Success(AndroidGeolocationUITestData.locations[0])
@@ -74,6 +74,7 @@ class AndroidGeolocationUITest : KoinTest {
 
     @Test
     fun scrollThroughList() {
+        coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
         coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
 
         rule.launchActivity(null)
@@ -114,6 +115,7 @@ class AndroidGeolocationUITest : KoinTest {
     fun openDetailMeasurement() {
         val elementId: Long = 24
 
+        coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
         coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
         coEvery { mockLocationRepository.getLocation(any()) } returns Result.Success(AndroidGeolocationUITestData.locations.find { it.id == elementId }!! )
 
@@ -138,6 +140,7 @@ class AndroidGeolocationUITest : KoinTest {
         val elementId: Long = 3
         val tempList = AndroidGeolocationUITestData.locations.toMutableList()
 
+        coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
         coEvery { mockLocationRepository.getLocations() } returns Result.Success(tempList)
         coEvery { mockLocationRepository.deleteLocation(elementId) } answers { tempList.removeAll {it.id == elementId} }
         coEvery { mockLocationRepository.getLocation(elementId) } returns Result.Success(tempList.find { it.id == elementId }!!)
