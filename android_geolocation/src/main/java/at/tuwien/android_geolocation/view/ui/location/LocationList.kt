@@ -71,7 +71,11 @@ class LocationList : Fragment() {
                 if (viewModel.isSecurityEnabled()) {
                     viewModel.showSnackbarMessage(R.string.snackbar_security_already_enabled)
                 } else {
-                    findNavController().navigate(R.id.action_locationList_to_enableSecurity)
+                    if (!viewModel.progressBar.value!!) {
+                        findNavController().navigate(R.id.action_locationList_to_enableSecurity)
+                    } else {
+                        viewModel.showSnackbarMessage(R.string.snackbar_loading_location)
+                    }
                 }
                 true
             }

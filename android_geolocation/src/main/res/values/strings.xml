@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Android Geolocation</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="title_location_details">Details</string>
 
     <string name="label_gps">GPS</string>
     <string name="label_mls">MLS</string>
