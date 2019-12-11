@@ -23,6 +23,7 @@ import at.tuwien.android_geolocation.service.mls.WifiAccessPointInfo
 import at.tuwien.android_geolocation.service.model.Position
 import at.tuwien.android_geolocation.util.GpsProviderException
 import at.tuwien.android_geolocation.util.MissingPermissionException
+import at.tuwien.android_geolocation.util.NetworkProviderException
 import at.tuwien.android_geolocation.util.NoCellTowerOrWifiInfoFound
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -57,6 +58,13 @@ class AntennaService : Service() {
         ) {
             throw MissingPermissionException("Permission for Location or WifiStatus missing")
         } else {
+            val locationManager: LocationManager =
+                this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+            if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                throw NetworkProviderException("Location not enabled")
+            }
+
             val telephonyManager: TelephonyManager =
                 this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             val wifiManager: WifiManager =

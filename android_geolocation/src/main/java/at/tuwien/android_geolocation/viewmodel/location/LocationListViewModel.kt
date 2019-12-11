@@ -74,6 +74,8 @@ class LocationListViewModel(
                 showSnackbarMessage(R.string.snackbar_permission_error)
             } catch (e: NoCellTowerOrWifiInfoFound) {
                 showSnackbarMessage(R.string.snackbar_no_gps_or_wifi_info_found)
+            } catch (e: NetworkProviderException) {
+                showSnackbarMessage(R.string.snackbar_network_provider_error)
             }
 
             try {

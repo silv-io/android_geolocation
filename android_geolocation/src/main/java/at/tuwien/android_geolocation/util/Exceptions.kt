@@ -6,3 +6,4 @@ class GpsProviderException(message: String) : Exception(message)
 
 class NoCellTowerOrWifiInfoFound(message: String) : Exception(message)
 
+class NetworkProviderException(message: String) : Exception(message)
