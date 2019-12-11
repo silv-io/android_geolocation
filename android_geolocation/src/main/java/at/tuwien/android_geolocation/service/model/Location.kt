@@ -30,7 +30,7 @@ data class Location(
     val plaintextString: String
         get() = """Timestamp: ${getFormattedTimestamp()}
             |GPS:  ${this.gps}
-            |MLS:  ${this.mls}Bei
+            |MLS:  ${this.mls}
             |Distance between GPS and MLS (m):  ${this.gps.diff(this.mls)}
             |GPS accuracy (m):  ${this.gps.roundAccuracy}
             |MLS accuracy (m):  ${this.mls.roundAccuracy}
