@@ -40,6 +40,7 @@ class LocationListViewModel(
     val progressBar: LiveData<Boolean> = _progressBar
 
     private var antennaService: AntennaService? = null
+    var isEncryptedDatabase: Boolean = false
 
     fun setAntennaService(antennaService: AntennaService?) {
         this.antennaService = antennaService
@@ -93,9 +94,9 @@ class LocationListViewModel(
     fun secureDatabase(pwd: Editable) {
         val passphrase = CharArray(pwd.length)
         pwd.getChars(0, pwd.length, passphrase, 0)
-        pwd.clear()
+        // pwd.clear()
 
-        val passphraseBytes = passphrase.toByteArray()
+        // val passphraseBytes = passphrase.toByteArray()
 
         /* for (i in passphrase.indices) {
             passphrase[i] = 0.toChar()
@@ -103,11 +104,13 @@ class LocationListViewModel(
 
         locationRepository.openEncryptedDatabase(passphrase.toString().toByteArray())
 
-        for (i in passphraseBytes.indices) {
+        /* for (i in passphraseBytes.indices) {
             passphraseBytes[i] = 0.toByte()
-        }
+        } */
 
         this.loadLocations()
+        isEncryptedDatabase = true
+        _securityPopupVisibility.value = false
     }
 
     fun CharArray.toByteArray(): ByteArray {
@@ -119,6 +122,14 @@ class LocationListViewModel(
         byteBuf.clear()
 
         return bytes
+    }
+
+    fun isDatabaseEncrypted(): Boolean {
+        return locationRepository.isDatabaseEncrypted()
+    }
+
+    fun closeEncryptedDatabase() {
+        locationRepository.closeEncryptedDatabase()
     }
 
     private fun showSnackbarMessage(@StringRes message: Int) {

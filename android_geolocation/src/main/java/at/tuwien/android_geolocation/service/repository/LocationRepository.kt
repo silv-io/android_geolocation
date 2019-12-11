@@ -158,26 +158,35 @@ class LocationRepository(
         }
 
         // clear secret
-        for (i in secret.indices) {
+        /* for (i in secret.indices) {
             secret[i] = 0.toByte()
-        }
+        } */
+    }
+
+    fun closeEncryptedDatabase() {
+        encryptedDatabase?.close()
     }
 
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
         val factory = SafeHelperFactory(secret)
 
         if (SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.UNENCRYPTED) {
+            Log.println(Log.ERROR, "######################", "encrypting database!")
             SQLCipherUtils.encrypt(context, context.getString(R.string.database_name), secret)
+        } else if (SQLCipherUtils.getDatabaseState(context, context.getString(R.string.database_name)) == SQLCipherUtils.State.ENCRYPTED) {
+            Log.println(Log.ERROR, "######################", "database is encrypted!")
         }
 
         val locationDb = Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.database_name))
             .openHelperFactory(factory)
             .build()
 
+        Log.println(Log.ERROR, "######################", locationDb.isOpen.toString())
+
         // clear secret
-        for (i in secret.indices) {
+        /* for (i in secret.indices) {
             secret[i] = 0.toByte()
-        }
+        } */
 
         return locationDb
     }
