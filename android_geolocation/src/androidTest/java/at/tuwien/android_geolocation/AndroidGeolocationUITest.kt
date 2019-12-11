@@ -62,6 +62,42 @@ class AndroidGeolocationUITest : KoinTest {
         }
     }
 
+    /**
+     * This test needs GPS to run properly as entries without GPS are not allowed.
+     * It works best with a GPS location emulator/mock but will also run fine with regular GPS.
+     *
+     * This test will fail if GPS is disabled. This is expected as this is expected UI behaviour.
+     */
+    @Test
+    fun createAndShowMeasurement_requiresGPS() {
+        coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
+        coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
+        coEvery { mockLocationRepository.newLocation(any(), any()) } returns Result.Success(AndroidGeolocationUITestData.locations[0].id)
+        coEvery { mockLocationRepository.getLocation(any()) } returns Result.Success(AndroidGeolocationUITestData.locations[0])
+
+        rule.launchActivity(null)
+
+        clickOn(R.id.fab)
+
+        idlingResource = FragmentIdlingResource(
+            rule
+        )
+
+        IdlingRegistry.getInstance().register(idlingResource)
+
+        assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations[0].getFormattedTimestamp())
+        assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations[0].gps.toString())
+        assertContains(R.id.txt_mls_coordinates, AndroidGeolocationUITestData.locations[0].mls.toString())
+        assertContains(R.id.txt_diff_gps_mls, AndroidGeolocationUITestData.locations[0].gps.diff(AndroidGeolocationUITestData.locations[0].mls).toString())
+        assertContains(R.id.txt_gps_accuracy, AndroidGeolocationUITestData.locations[0].gps.accuracy.toString())
+        assertContains(R.id.txt_mls_accuracy, AndroidGeolocationUITestData.locations[0].mls.accuracy.toString())
+        assertContains(R.id.txt_mls_parameters, AndroidGeolocationUITestData.locations[0].params.toString())
+
+        coVerify(exactly = 1) { mockLocationRepository.getLocations() }
+        coVerify(exactly = 1) { mockLocationRepository.newLocation(any(), any()) }
+        coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations[0].id) }
+    }
+
     @Test
     fun scrollThroughList() {
         coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
@@ -99,42 +135,6 @@ class AndroidGeolocationUITest : KoinTest {
         scrollListToPosition(R.id.item_list, 24)
 
         coVerify(exactly = 1) { mockLocationRepository.getLocations() }
-    }
-
-    /**
-     * This test needs GPS to run properly as entries without GPS are not allowed.
-     * It works best with a GPS location emulator/mock but will also run fine with regular GPS.
-     *
-     * This test will fail if GPS is disabled. This is expected as this is expected UI behaviour.
-     */
-    @Test
-    fun createAndShowMeasurement_requiresGPS() {
-        coEvery { mockLocationRepository.isEncryptedDatabaseActive() } returns false
-        coEvery { mockLocationRepository.getLocations() } returns Result.Success(AndroidGeolocationUITestData.locations)
-        coEvery { mockLocationRepository.newLocation(any(), any()) } returns Result.Success(AndroidGeolocationUITestData.locations[0].id)
-        coEvery { mockLocationRepository.getLocation(any()) } returns Result.Success(AndroidGeolocationUITestData.locations[0])
-
-        rule.launchActivity(null)
-
-        clickOn(R.id.fab)
-
-        idlingResource = FragmentIdlingResource(
-            rule
-        )
-
-        IdlingRegistry.getInstance().register(idlingResource)
-
-        assertContains(R.id.txt_capture_time, AndroidGeolocationUITestData.locations[0].getFormattedTimestamp())
-        assertContains(R.id.txt_gps_coodinates, AndroidGeolocationUITestData.locations[0].gps.toString())
-        assertContains(R.id.txt_mls_coordinates, AndroidGeolocationUITestData.locations[0].mls.toString())
-        assertContains(R.id.txt_diff_gps_mls, AndroidGeolocationUITestData.locations[0].gps.diff(AndroidGeolocationUITestData.locations[0].mls).toString())
-        assertContains(R.id.txt_gps_accuracy, AndroidGeolocationUITestData.locations[0].gps.accuracy.toString())
-        assertContains(R.id.txt_mls_accuracy, AndroidGeolocationUITestData.locations[0].mls.accuracy.toString())
-        assertContains(R.id.txt_mls_parameters, AndroidGeolocationUITestData.locations[0].params.toString())
-
-        coVerify(exactly = 1) { mockLocationRepository.getLocations() }
-        coVerify(exactly = 1) { mockLocationRepository.newLocation(any(), any()) }
-        coVerify(exactly = 1) { mockLocationRepository.getLocation(AndroidGeolocationUITestData.locations[0].id) }
     }
 
     @Test
