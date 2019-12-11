@@ -121,7 +121,12 @@ class LocationRepository(
         val mlsResponse: MLSResponse?
 
         try {
-            val response: Response<MLSResponse?>? = mlsAPI.getMLSLocation(mlsRequest)?.execute()
+            val response: Response<MLSResponse?>? =
+                if (encryptedDatabase != null) {
+                    mlsAPI.getMLSLocationSecure(mlsRequest)?.execute()
+                } else {
+                    mlsAPI.getMLSLocation(mlsRequest)?.execute()
+                }
             return if (response != null && response.isSuccessful) {
                 mlsResponse = response.body()
                 val mlsResponseCopy = mlsResponse!!.copy()

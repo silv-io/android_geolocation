@@ -16,4 +16,7 @@ import retrofit2.http.POST
 interface MLSAPI {
     @POST("geolocate?key=test")
     fun getMLSLocation(@Body mlsRequest: MLSRequest?): Call<MLSResponse?>?
+
+    @POST("geolocate?key=test")
+    fun getMLSLocationSecure(@Body mlsRequest: MLSRequest?): Call<MLSResponse?>?
 }
