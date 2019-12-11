@@ -1,7 +1,6 @@
 package at.tuwien.android_geolocation.viewmodel.location
 
 import android.app.Application
-import android.text.Editable
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
@@ -13,21 +12,13 @@ import at.tuwien.android_geolocation.service.model.Location
 import at.tuwien.android_geolocation.service.repository.LocationRepository
 import at.tuwien.android_geolocation.util.Event
 import at.tuwien.android_geolocation.util.Result
-import at.tuwien.android_geolocation.util.succeeded
 import com.tuwien.geolocation_android.R
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
-import java.nio.CharBuffer
-import java.nio.charset.StandardCharsets
-
 
 class LocationListViewModel(
     private val locationRepository: LocationRepository,
     application: Application
 ) : AndroidViewModel(application) {
-    private val _securityPopupVisibility = MutableLiveData<Boolean>().apply {  value = false }
-    val securityPopupVisibility: LiveData<Boolean> = _securityPopupVisibility
-
     private val _secureModeEnabled = MutableLiveData<Boolean>().apply {  value = false }
     val secureModeEnabled: LiveData<Boolean> = _secureModeEnabled
 
@@ -49,18 +40,15 @@ class LocationListViewModel(
         this.antennaService = antennaService
     }
 
-    fun loadLocations(): Boolean {
-        var isSuccessful = false
+    fun loadLocations() {
+        _secureModeEnabled.value = locationRepository.isEncryptedDatabaseActive()
 
         viewModelScope.launch {
             val result = getLocationsFromRepository()
-            if (result?.succeeded!!) { isSuccessful = true }
             (result as? Result.Success)?.let {
                 _items.value = result.data
             }
         }
-
-        return isSuccessful
     }
 
     private suspend fun getLocationsFromRepository(): Result<List<Location>>? {
@@ -91,51 +79,11 @@ class LocationListViewModel(
         }
     }
 
-    fun startEnableSecurity() {
-        if (this._secureModeEnabled.value!!) {
-            showSnackbarMessage(R.string.snackbar_security_already_enabled)
-        } else {
-            _securityPopupVisibility.value = true
-        }
+    fun isSecurityEnabled(): Boolean {
+        return locationRepository.isEncryptedDatabaseActive()
     }
 
-    fun cancelEnableSecurity() {
-        _securityPopupVisibility.value = false
-    }
-
-    fun secureDatabase(pwd: Editable) {
-        val passphrase = CharArray(pwd.length)
-        pwd.getChars(0, pwd.length, passphrase, 0)
-        pwd.clear()
-
-        val passphraseBytes = passphrase.toByteArray()
-
-        for (i in passphrase.indices) {
-            passphrase[i] = 0.toChar()
-        }
-
-        locationRepository.openEncryptedDatabase(passphraseBytes)
-
-        if (this.loadLocations()) {
-            _secureModeEnabled.value = true
-            _securityPopupVisibility.value = false
-        } else {
-            showSnackbarMessage(R.string.snackbar_security_error_connecting)
-        }
-    }
-
-    private fun CharArray.toByteArray(): ByteArray {
-        val charBuf: CharBuffer = CharBuffer.wrap(this)
-        val byteBuf: ByteBuffer = StandardCharsets.UTF_8.encode(charBuf)
-        val bytes = ByteArray(byteBuf.remaining())
-        byteBuf.get(bytes, 0, bytes.size)
-        charBuf.clear()
-        byteBuf.clear()
-
-        return bytes
-    }
-
-    private fun showSnackbarMessage(@StringRes message: Int) {
+    fun showSnackbarMessage(@StringRes message: Int) {
         _snackbarText.value = Event(message)
     }
 }

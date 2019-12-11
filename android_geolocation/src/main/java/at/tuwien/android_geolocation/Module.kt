@@ -7,6 +7,7 @@ import at.tuwien.android_geolocation.service.LocationDb
 import at.tuwien.android_geolocation.service.model.LocationDao
 import at.tuwien.android_geolocation.service.model.MLSAPI
 import at.tuwien.android_geolocation.service.repository.LocationRepository
+import at.tuwien.android_geolocation.viewmodel.location.EnableSecurityViewModel
 import at.tuwien.android_geolocation.viewmodel.location.LocationDetailsViewModel
 import at.tuwien.android_geolocation.viewmodel.location.LocationListViewModel
 import com.google.gson.FieldNamingPolicy
@@ -24,6 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 val viewModelModule = module {
     viewModel { LocationListViewModel(get(), get()) }
     viewModel { LocationDetailsViewModel(get(), get()) }
+    viewModel { EnableSecurityViewModel(get(), get()) }
 }
 
 val repositoryModule = module {

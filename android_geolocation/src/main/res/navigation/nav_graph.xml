@@ -19,6 +19,9 @@
                 android:defaultValue="1L"
                 app:argType="long" />
         </action>
+        <action
+            android:id="@+id/action_locationList_to_enableSecurity"
+            app:destination="@id/enableSecurity" />
     </fragment>
     <fragment
         android:id="@+id/locationDetails"
@@ -32,5 +35,14 @@
         <argument
             android:name="locationId"
             app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/enableSecurity"
+        android:name="at.tuwien.android_geolocation.view.ui.location.EnableSecurity"
+        android:label="EnableSecurity" >
+        <action
+            android:id="@+id/action_enableSecurity_pop"
+            app:popUpTo="@id/enableSecurity"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

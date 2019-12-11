@@ -153,11 +153,20 @@ class LocationRepository(
         }
     }
 
+    fun closeEncryptedDatabase() {
+        encryptedDatabase?.close()
+        encryptedDatabase = null
+    }
+
     private fun buildEncryptedDatabase(context: Context, secret: ByteArray): LocationDb {
         val factory = SafeHelperFactory(secret)
 
         return Room.databaseBuilder(context, LocationDb::class.java, context.getString(R.string.encrypted_database_name))
             .openHelperFactory(factory)
             .build()
+    }
+
+    fun isEncryptedDatabaseActive(): Boolean {
+        return encryptedDatabase != null
     }
 }
